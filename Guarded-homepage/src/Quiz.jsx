@@ -45,20 +45,13 @@ const quizzes = [
 
 export default function Quiz() {
   return (
-    <div className="w-full flex flex-col items-center mt-10">
+    <div className="w-full min-h-screen flex flex-col items-center bg-[#f3f2fd] pb-24">
       {/* Big rounded purple bar */}
-      <div className="w-[90%] h-24 bg-[#5c52ff] rounded-full flex items-center justify-center mb-[-40px] z-10">
+      <div className="w-[90%] h-24 bg-[#5c52ff] rounded-full flex items-center justify-center mb-[-40px] z-10 mt-10">
         <span className="text-white text-4xl font-bold">Quizzes</span>
       </div>
-      {/* Title */}
-      <div className="mt-16 mb-8 text-4xl font-bold text-[#5c52ff] text-center">
-        Quizzes
-        <div className="mt-2 flex justify-center">
-          <div className="w-32 h-2 rounded-full bg-[#5c52ff] opacity-80"></div>
-        </div>
-      </div>
       {/* Quiz cards */}
-      <div className="flex gap-8 justify-center flex-wrap w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 w-full mt-40 px-8 justify-items-center">
         {quizzes.map((quiz) => (
           <div
             key={quiz.id}

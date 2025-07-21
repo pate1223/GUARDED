@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import ShieldImage from './assets/shield.png';
 import Logo from './assets/logo.png';
-import './index.css';
 import WhyItMatters from './WhyItMatters';
-import Quiz from './Quiz'; // Import the Quiz component
+import Quiz from './Quiz';
+import Home from './Home'; // Import Home
 
 // Add translations for EN and FR
 const translations = {
@@ -34,25 +33,33 @@ function i18n(lang, key) {
 
 function App() {
   const [lang, setLang] = useState('EN');
-  const [view, setView] = useState('home'); // Add view state
+  const [view, setView] = useState('home');
   const [showLang, setShowLang] = useState(false);
 
   return (
     <div className="relative w-full bg-white text-black min-h-screen flex flex-col items-center border-none p-0 m-0">
       <div className="absolute inset-0 bg-[#5c52ff] opacity-10 pointer-events-none z-0"></div>
-      {/* Top bar with logo, nav, language, and login */}
+      {/* Top bar */}
       <div className="sticky top-6 z-50 w-[900px] mx-auto flex items-center px-10 py-5 shadow-xl bg-white rounded-full mt-8">
-        {/* Left icon/logo in circle */}
+        {/* Logo and title */}
         <div className="flex items-center mr-8">
           <div className="w-16 h-16 bg-white border border-purple-200 rounded-full flex items-center justify-center">
             <img src={Logo} alt="Logo" className="w-10 h-10" />
           </div>
+          <span className="ml-3 text-[#5c52ff] font-extrabold text-xl">GuardEd</span>
         </div>
         {/* Navigation */}
         <nav className="flex gap-12 items-center text-xl font-medium text-gray-700 flex-1 justify-center">
           <button
             className={`hover:text-[#5c52ff] transition ${view === 'home' ? 'text-[#5c52ff] font-bold underline' : ''}`}
             onClick={() => setView('home')}
+          >
+            Home
+          </button>
+          <span className="text-gray-300">|</span>
+          <button
+            className={`hover:text-[#5c52ff] transition ${view === 'learn' ? 'text-[#5c52ff] font-bold underline' : ''}`}
+            onClick={() => setView('learn')}
           >
             {i18n(lang, "learn")}
           </button>
@@ -63,16 +70,16 @@ function App() {
           >
             {i18n(lang, "quizzes")}
           </button>
-          <span className="text-gray-300">|</span>
-          <button className="hover:text-[#5c52ff] transition flex items-center">
-            <span className="sr-only">{i18n(lang, "info")}</span>
-            <span className="w-10 h-10 bg-[#5c52ff] rounded-full flex items-center justify-center text-white font-bold text-2xl">
-              i
-            </span>
-          </button>
         </nav>
+        {/* Sign in button */}
+        <button
+          className="ml-8 px-6 py-3 bg-[#5c52ff] text-white rounded-full font-semibold shadow hover:bg-[#4335d1] transition text-base"
+          type="button"
+        >
+          Sign in
+        </button>
         {/* Language Globe Toggle */}
-        <div className="relative ml-8">
+        <div className="relative ml-4">
           <button
             className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-[#5c52ff] bg-white hover:bg-purple-50 transition"
             onClick={() => setShowLang(!showLang)}
@@ -113,51 +120,17 @@ function App() {
             </div>
           )}
         </div>
-        {/* Login button */}
-        <button
-          className="ml-8 px-6 py-3 bg-[#5c52ff] text-white rounded-full font-semibold shadow hover:bg-[#4335d1] transition text-base"
-          type="button"
-        >
-          Login
-        </button>
       </div>
-      {/* Main content: show Quiz or homepage */}
+      {/* Main content */}
       {view === 'quiz' ? (
         <Quiz />
       ) : (
-        <>
-          <button
-            className="flex flex-col md:flex-row justify-center items-center mt-24 px-4 w-full focus:outline-none"
-            type="button"
-            onClick={() => alert(`${i18n(lang, "getStarted")} clicked!`)}
-          >
-            <img src={ShieldImage} alt="Shield graphic" className="w-96 h-auto" />
-            <div className="text-center md:text-left md:ml-16">
-              <span className="block text-7xl font-extrabold text-[#5c52ff] mb-2">
-                GuardED
-              </span>
-              <span className="block text-2xl font-semibold text-[#5c52ff] mb-2">
-                {i18n(lang, "staySafe")}
-              </span>
-              <span className="block text-2xl font-semibold text-[#5c52ff] mb-2">
-                {i18n(lang, "defend")}
-              </span>
-              <span className="block text-2xl font-semibold text-[#5c52ff] mb-6">
-                {i18n(lang, "against")}
-              </span>
-              <span className="mt-10 inline-block">
-                <span className="px-10 py-5 bg-[#5c52ff] text-white font-semibold rounded-full hover:bg-[#4335d1] text-xl">
-                  {i18n(lang, "getStarted")}
-                </span>
-              </span>
-            </div>
-          </button>
-          {/* Why It Matters section */}
-          <WhyItMatters />
-          {/* Faint purple bar at the bottom */}
-          <div className="w-full h-24 bg-purple-100 absolute left-0 bottom-0 z-0"></div>
-        </>
+        <Home i18n={i18n} lang={lang} />
       )}
+      {/* Why It Matters section (optional, only on home) */}
+      {view === 'home' && <WhyItMatters />}
+      {/* Faint purple bar at the bottom */}
+      <div className="w-full h-24 bg-purple-100 absolute left-0 bottom-0 z-0"></div>
     </div>
   );
 }
