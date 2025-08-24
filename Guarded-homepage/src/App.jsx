@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Logo from './assets/logo.png';
 import WhyItMatters from './WhyItMatters';
-import Quiz from './quiz';
+import Quiz from './Quiz';
 import Home from './Home'; // Import Home
 
 // Add translations for EN and FR
@@ -129,6 +129,7 @@ function App() {
       )}
       {/* Why It Matters section (optional, only on home) */}
       {view === 'home' && <WhyItMatters />}
+      {view === 'home' && <TypesOfScams />}
       {/* Faint purple bar at the bottom */}
       <div className="w-full h-24 bg-purple-100 absolute left-0 bottom-0 z-0"></div>
     </div>
