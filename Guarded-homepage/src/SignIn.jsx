@@ -1,8 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import Logo from "./assets/logo.png";
 import './index.css';
+import Login from "./Login";
+import CreateAccount from "./CreateAccount";
 
 export default function SignIn({ onBack }) {
+  const [showLogin, setShowLogin] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+
+  // when showLogin is true, render the full Login page
+  if (showLogin) {
+    return <Login onBack={() => setShowLogin(false)} onCloseParent={onBack} />;
+  }
+
+  if (showCreate) {
+    return (
+      <CreateAccount
+        onBack={() => setShowCreate(false)}
+        onGoToLogin={() => { setShowCreate(false); setShowLogin(true); }}
+        onCloseParent={onBack}
+      />
+    );
+  }
+
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-white">
       <div className="w-[1100px] h-[650px] bg-white rounded-3xl shadow-2xl flex overflow-hidden">
@@ -35,25 +55,24 @@ export default function SignIn({ onBack }) {
             <div className="text-4xl font-handwritten text-[#44425a] text-center mb-8">
               Every click matters.<br/>Learn to click smart.
             </div>
-            <div className="absolute bottom-10 left-10">
-              <svg width="60" height="100" viewBox="0 0 60 100" fill="none">
-                <rect x="20" y="60" width="20" height="40" rx="5" fill="#22223b"/>
-                <ellipse cx="30" cy="80" rx="10" ry="15" fill="#5c52ff"/>
-                <rect x="25" y="70" width="10" height="20" rx="2" fill="#fff"/>
-                <circle cx="30" cy="65" r="7" fill="#5c52ff"/>
-              </svg>
-            </div>
           </div>
         </div>
+
         {/* Right Side */}
         <div className="w-1/2 flex flex-col items-center justify-center bg-white">
           <img src={Logo} alt="GuardEd logo" className="w-24 h-24 mb-6" />
           <h2 className="text-3xl font-bold text-gray-800 mb-8">Welcome to <span className="text-[#5c52ff]">GuardEd!</span></h2>
           <div className="w-[80%] flex flex-col gap-6">
-            <button className="w-full py-5 rounded-full border border-[#e6e3ff] text-[#5c52ff] text-xl font-semibold bg-white hover:bg-[#e6e3ff] transition">
+            <button
+              className="w-full py-5 rounded-full border border-[#e6e3ff] text-[#5c52ff] text-xl font-semibold bg-white hover:bg-[#e6e3ff] transition"
+              onClick={() => setShowLogin(true)}
+            >
               Login
             </button>
-            <button className="w-full py-5 rounded-full border border-[#e6e3ff] text-[#5c52ff] text-xl font-semibold bg-white hover:bg-[#e6e3ff] transition">
+            <button
+              className="w-full py-5 rounded-full border border-[#e6e3ff] text-[#5c52ff] text-xl font-semibold bg-white hover:bg-[#e6e3ff] transition"
+              onClick={() => setShowCreate(true)}
+            >
               Create Account
             </button>
           </div>
