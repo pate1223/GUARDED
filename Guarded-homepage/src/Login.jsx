@@ -1,10 +1,18 @@
 import React, { useState } from "react";
 import Logo from "./assets/logo.png";
+import Undraw from "./assets/undraw_surveillance_k6wl 1.png";
+import ForgotPassword from "./ForgotPassword"; // <-- added import
 
 export default function Login({ onBack, onCloseParent }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgot, setShowForgot] = useState(false); // <-- added state
+
+  // show ForgotPassword screen when requested
+  if (showForgot) {
+    return <ForgotPassword onBack={() => setShowForgot(false)} onCloseParent={onCloseParent} />;
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -29,29 +37,17 @@ export default function Login({ onBack, onCloseParent }) {
             </svg>
           </button>
 
-          <div className="flex flex-col items-center mt-16">
-            <div className="mb-8">
-              <svg width="260" height="260" viewBox="0 0 180 180" fill="none">
-                <circle cx="90" cy="90" r="80" fill="#fff" stroke="#bcb6ff" strokeDasharray="6 6" strokeWidth="2"/>
-                <circle cx="90" cy="90" r="60" fill="#44425a"/>
-                <circle cx="90" cy="90" r="35" fill="#fff"/>
-                <ellipse cx="90" cy="110" rx="7" ry="12" fill="#44425a"/>
-                <circle cx="130" cy="60" r="8" fill="#5c52ff"/>
-                <circle cx="50" cy="120" r="8" fill="#5c52ff"/>
-                <circle cx="130" cy="120" r="6" fill="#5c52ff"/>
-                <circle cx="50" cy="60" r="6" fill="#5c52ff"/>
-              </svg>
-            </div>
+          <div className="flex flex-col items-center mt-8">
+            {/* replaced inline SVG with provided PNG asset */}
+            <img
+              src={Undraw}
+              alt="Illustration"
+              className="w-[320px] h-auto object-contain mb-6"
+              style={{ filter: 'drop-shadow(0 12px 24px rgba(92,82,255,0.12))' }}
+            />
+
             <div className="text-4xl font-handwritten text-[#44425a] text-center mb-8">
               Every click matters.<br/>Learn to click smart.
-            </div>
-            <div className="absolute bottom-10 left-10">
-              <svg width="60" height="100" viewBox="0 0 60 100" fill="none">
-                <rect x="20" y="60" width="20" height="40" rx="5" fill="#22223b"/>
-                <ellipse cx="30" cy="80" rx="10" ry="15" fill="#5c52ff"/>
-                <rect x="25" y="70" width="10" height="20" rx="2" fill="#fff"/>
-                <circle cx="30" cy="65" r="7" fill="#5c52ff"/>
-              </svg>
             </div>
           </div>
         </div>
@@ -109,7 +105,7 @@ export default function Login({ onBack, onCloseParent }) {
             </div>
 
             <div className="flex justify-end">
-              <button type="button" className="text-[#5c52ff] font-semibold hover:underline text-base">Forgot password?</button>
+              <button type="button" onClick={() => setShowForgot(true)} className="text-[#5c52ff] font-semibold hover:underline text-base">Forgot password?</button>
             </div>
 
             <button type="submit" className="w-full py-4 rounded-full bg-[#5c52ff] text-white text-xl font-bold shadow hover:bg-[#4335d1] transition">

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Logo from "./assets/logo.png";
+import Undraw from "./assets/undraw_surveillance_k6wl 1.png";
 
 export default function CreateAccount({ onBack, onGoToLogin, onCloseParent }) {
   const [name, setName] = useState("");
@@ -32,19 +33,15 @@ export default function CreateAccount({ onBack, onGoToLogin, onCloseParent }) {
             </svg>
           </button>
 
-          <div className="flex flex-col items-center mt-16">
-            <div className="mb-8">
-              <svg width="260" height="260" viewBox="0 0 180 180" fill="none">
-                <circle cx="90" cy="90" r="80" fill="#fff" stroke="#bcb6ff" strokeDasharray="6 6" strokeWidth="2"/>
-                <circle cx="90" cy="90" r="60" fill="#44425a"/>
-                <circle cx="90" cy="90" r="35" fill="#fff"/>
-                <ellipse cx="90" cy="110" rx="7" ry="12" fill="#44425a"/>
-                <circle cx="130" cy="60" r="8" fill="#5c52ff"/>
-                <circle cx="50" cy="120" r="8" fill="#5c52ff"/>
-                <circle cx="130" cy="120" r="6" fill="#5c52ff"/>
-                <circle cx="50" cy="60" r="6" fill="#5c52ff"/>
-              </svg>
-            </div>
+          <div className="flex flex-col items-center mt-8">
+            {/* use same PNG asset as Login */}
+            <img
+              src={Undraw}
+              alt="Illustration"
+              className="w-[320px] h-auto object-contain mb-6"
+              style={{ filter: 'drop-shadow(0 12px 24px rgba(92,82,255,0.12))' }}
+            />
+
             <div className="text-4xl font-handwritten text-[#44425a] text-center mb-8">
               Every click matters.<br/>Learn to click smart.
             </div>
