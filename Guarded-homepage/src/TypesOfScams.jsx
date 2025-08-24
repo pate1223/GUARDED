@@ -1,5 +1,4 @@
 import React from "react";
-
 import EmailScamImg from "./assets/Email-scams.png";
 import CallScamImg from "./assets/Call-scams.png";
 import OnlineScamImg from "./assets/Online-scams.png";

@@ -3,6 +3,8 @@ import Logo from './assets/logo.png';
 import WhyItMatters from './WhyItMatters';
 import Quiz from './Quiz';
 import Home from './Home'; // Import Home
+import TypesOfScams from './TypesOfScams';
+import SignIn from './SignIn'; // Add this import
 
 // Add translations for EN and FR
 const translations = {
