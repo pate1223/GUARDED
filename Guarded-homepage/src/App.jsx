@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Logo from './assets/logo.png';
 import WhyItMatters from './WhyItMatters';
 import TypesOfScams from './TypesOfScams';
+import LoginPage from './LoginPage';
 import Quiz from './Quiz';
 import Home from './Home'; // Import Home
 
@@ -36,6 +37,8 @@ function App() {
   const [lang, setLang] = useState('EN');
   const [view, setView] = useState('home');
   const [showLang, setShowLang] = useState(false);
+ 
+
 
   return (
     <div className="relative w-full bg-white text-black min-h-screen flex flex-col items-center border-none p-0 m-0">
@@ -76,6 +79,7 @@ function App() {
         <button
           className="ml-8 px-6 py-3 bg-[#5c52ff] text-white rounded-full font-semibold shadow hover:bg-[#4335d1] transition text-base"
           type="button"
+          onClick={() => setView("login")}
         >
           Sign in
         </button>
@@ -125,6 +129,8 @@ function App() {
       {/* Main content */}
       {view === 'quiz' ? (
         <Quiz />
+        ) : view === "login" ? (
+        <LoginPage />  
       ) : (
         <Home i18n={i18n} lang={lang} />
       )}
