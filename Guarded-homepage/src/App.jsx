@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Logo from './assets/logo.png';
 import WhyItMatters from './WhyItMatters';
-import Quiz from './Quiz';
+import Quiz from './quiz';
 import Home from './Home'; // Import Home
 
 // Add translations for EN and FR
