@@ -3,8 +3,8 @@ import Logo from './assets/logo.png';
 import WhyItMatters from './WhyItMatters';
 import TypesOfScams from './TypesOfScams';
 import Quiz from './Quiz';
-import Home from './Home'; // Import Home
-import SignIn from './SignIn'; // Add this import
+import Home from './Home';
+import SignIn from './SignIn';
 
 // Add translations for EN and FR
 const translations = {
@@ -38,9 +38,15 @@ function App() {
   const [view, setView] = useState('home');
   const [showLang, setShowLang] = useState(false);
 
+  // If SignIn is active, take over the full screen (no top bar, no footer)
+  if (view === 'signin') {
+    return <SignIn onBack={() => setView('home')} />;
+  }
+
   return (
     <div className="relative w-full bg-white text-black min-h-screen flex flex-col items-center border-none p-0 m-0">
       <div className="absolute inset-0 bg-[#5c52ff] opacity-10 pointer-events-none z-0"></div>
+
       {/* Top bar */}
       <div className="sticky top-6 z-50 w-[900px] mx-auto flex items-center px-10 py-5 shadow-xl bg-white rounded-full mt-8">
         {/* Logo and title */}
@@ -50,6 +56,7 @@ function App() {
           </div>
           <span className="ml-3 text-[#5c52ff] font-extrabold text-xl">GuardEd</span>
         </div>
+
         {/* Navigation */}
         <nav className="flex gap-12 items-center text-xl font-medium text-gray-700 flex-1 justify-center">
           <button
@@ -73,13 +80,16 @@ function App() {
             {i18n(lang, "quizzes")}
           </button>
         </nav>
+
         {/* Sign in button */}
         <button
           className="ml-8 px-6 py-3 bg-[#5c52ff] text-white rounded-full font-semibold shadow hover:bg-[#4335d1] transition text-base"
           type="button"
+          onClick={() => setView('signin')}
         >
           Sign in
         </button>
+
         {/* Language Globe Toggle */}
         <div className="relative ml-4">
           <button
@@ -88,7 +98,6 @@ function App() {
             aria-label="Toggle language"
             type="button"
           >
-            {/* Globe SVG */}
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
               <circle cx="14" cy="14" r="12" stroke="#5c52ff" strokeWidth="2" />
               <ellipse cx="14" cy="14" rx="7" ry="12" stroke="#5c52ff" strokeWidth="2" />
@@ -96,7 +105,7 @@ function App() {
               <line x1="14" y1="2" x2="14" y2="26" stroke="#5c52ff" strokeWidth="2" />
             </svg>
           </button>
-          {/* Language options dropdown */}
+
           {showLang && (
             <div className="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg py-2 px-4 flex flex-col gap-2 z-50">
               <button
@@ -104,7 +113,6 @@ function App() {
                   lang === 'EN' ? 'bg-purple-100 font-bold text-[#5c52ff]' : 'hover:bg-purple-50'
                 }`}
                 onClick={() => { setLang('EN'); setShowLang(false); }}
-                aria-pressed={lang === 'EN'}
               >
                 <span className="text-2xl">🇬🇧</span>
                 <span className="text-lg font-semibold">EN</span>
@@ -114,7 +122,6 @@ function App() {
                   lang === 'FR' ? 'bg-purple-100 font-bold text-[#5c52ff]' : 'hover:bg-purple-50'
                 }`}
                 onClick={() => { setLang('FR'); setShowLang(false); }}
-                aria-pressed={lang === 'FR'}
               >
                 <span className="text-2xl">🇫🇷</span>
                 <span className="text-lg font-semibold">FR</span>
@@ -123,28 +130,26 @@ function App() {
           )}
         </div>
       </div>
-{/* Main content */}
-{view === 'quiz' ? (
-  <Quiz />
-) : view === "login" ? (
-  <LoginPage />  
-) : (
-  <Home i18n={i18n} lang={lang} />
-)}
 
-{/* Extra sections only for Home */}
-{view === 'home' && (
-  <>
-    <WhyItMatters />
-    <TypesOfScams />
-  </>
-)}
+      {/* Main content */}
+      {view === 'quiz' ? (
+        <Quiz />
+      ) : (
+        <Home i18n={i18n} lang={lang} />
+      )}
 
-{/* Faint purple bar at the bottom */}
-<div className="w-full h-24 bg-purple-100 absolute left-0 bottom-0 z-0"></div>
-</div>
-);
+      {/* Extra sections only for Home */}
+      {view === 'home' && (
+        <>
+          <WhyItMatters />
+          <TypesOfScams />
+        </>
+      )}
 
+      {/* Faint purple bar at the bottom */}
+      <div className="w-full h-24 bg-purple-100 absolute left-0 bottom-0 z-0"></div>
+    </div>
+  );
 }
 
 export default App;

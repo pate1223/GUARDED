@@ -25,8 +25,8 @@ export default function SignIn({ onBack }) {
   }
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-white">
-      <div className="w-[1100px] h-[650px] bg-white rounded-3xl shadow-2xl flex overflow-hidden">
+    <div className="w-screen h-screen flex items-center justify-center bg-white">
+      <div className="w-full h-full flex overflow-hidden">
         {/* Left Side */}
         <div className="w-1/2 bg-[#e6e3ff] flex flex-col justify-center items-center relative">
           {/* Back button */}
