@@ -5,6 +5,8 @@ import TypesOfScams from './TypesOfScams';
 import Quiz from './Quiz';
 import Home from './Home';
 import SignIn from './SignIn';
+import Learn from './Learn';
+
 
 // Add translations for EN and FR
 const translations = {
