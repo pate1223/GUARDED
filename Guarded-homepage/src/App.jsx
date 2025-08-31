@@ -5,7 +5,6 @@ import TypesOfScams from './TypesOfScams';
 import Quiz from './Quiz';
 import Home from './Home'; // Import Home
 import SignIn from './SignIn'; // Add this import
-import TypesOfScams from './TypesOfScams';  
 
 // Add translations for EN and FR
 const translations = {
@@ -124,20 +123,28 @@ function App() {
           )}
         </div>
       </div>
-      {/* Main content */}
-      {view === 'quiz' ? (
-        <Quiz />
-        ) : view === "login" ? (
-        <LoginPage />  
-      ) : (
-        <Home i18n={i18n} lang={lang} />
-      )}
-      {/* Why It Matters section (optional, only on home) */}
-      {view === 'home' && <WhyItMatters />}
-      {/* Faint purple bar at the bottom */}
-      <div className="w-full h-24 bg-purple-100 absolute left-0 bottom-0 z-0"></div>
-    </div>
-  );
+{/* Main content */}
+{view === 'quiz' ? (
+  <Quiz />
+) : view === "login" ? (
+  <LoginPage />  
+) : (
+  <Home i18n={i18n} lang={lang} />
+)}
+
+{/* Extra sections only for Home */}
+{view === 'home' && (
+  <>
+    <WhyItMatters />
+    <TypesOfScams />
+  </>
+)}
+
+{/* Faint purple bar at the bottom */}
+<div className="w-full h-24 bg-purple-100 absolute left-0 bottom-0 z-0"></div>
+</div>
+);
+
 }
 
 export default App;
