@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import Logo from './assets/logo.png';
 import WhyItMatters from './WhyItMatters';
 import TypesOfScams from './TypesOfScams';
-import LoginPage from './LoginPage';
 import Quiz from './Quiz';
 import Home from './Home'; // Import Home
+import SignIn from './SignIn'; // Add this import
+import TypesOfScams from './TypesOfScams';  
 
 // Add translations for EN and FR
 const translations = {
@@ -37,8 +38,6 @@ function App() {
   const [lang, setLang] = useState('EN');
   const [view, setView] = useState('home');
   const [showLang, setShowLang] = useState(false);
- 
-
 
   return (
     <div className="relative w-full bg-white text-black min-h-screen flex flex-col items-center border-none p-0 m-0">
@@ -79,7 +78,6 @@ function App() {
         <button
           className="ml-8 px-6 py-3 bg-[#5c52ff] text-white rounded-full font-semibold shadow hover:bg-[#4335d1] transition text-base"
           type="button"
-          onClick={() => setView("login")}
         >
           Sign in
         </button>
@@ -136,7 +134,6 @@ function App() {
       )}
       {/* Why It Matters section (optional, only on home) */}
       {view === 'home' && <WhyItMatters />}
-      {view === 'home' && <TypesOfScams />}
       {/* Faint purple bar at the bottom */}
       <div className="w-full h-24 bg-purple-100 absolute left-0 bottom-0 z-0"></div>
     </div>
