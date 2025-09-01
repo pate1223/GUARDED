@@ -7,7 +7,6 @@ import Home from './Home';
 import SignIn from './SignIn';
 import Learn from './Learn';
 
-
 // Add translations for EN and FR
 const translations = {
   EN: {
@@ -134,11 +133,9 @@ function App() {
       </div>
 
       {/* Main content */}
-      {view === 'quiz' ? (
-        <Quiz />
-      ) : (
-        <Home i18n={i18n} lang={lang} />
-      )}
+      {view === 'quiz' && <Quiz />}
+      {view === 'learn' && <Learn />}
+      {view === 'home' && <Home i18n={i18n} lang={lang} />}
 
       {/* Extra sections only for Home */}
       {view === 'home' && (
