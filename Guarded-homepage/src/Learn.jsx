@@ -1,6 +1,49 @@
 import React from "react";
 
-export default function Learn({ onBack }) {
+// Define view constants
+const VIEWS = {
+  ONLINE: "online-scams",
+  CALL: "call-scams",
+  EMAIL: "email-scams",
+};
+
+export default function Learn({ onBack, setView }) {
+  const modules = [
+    {
+      title: "Getting Started",
+      desc: "Understand what scams are, why they work, and common red flags.",
+    },
+    {
+      title: "Spotting Scams",
+      desc: "Learn how to detect email, phone, and online scams in real life.",
+    },
+    {
+      title: "Defending Yourself",
+      desc: "Practical strategies to protect your money, data, and identity.",
+    },
+  ];
+
+  const topics = [
+    {
+      icon: "💻",
+      title: "Online Scams",
+      desc: "Fake websites, phishing links, and fraudulent online offers.",
+      view: VIEWS.ONLINE,
+    },
+    {
+      icon: "📞",
+      title: "Call Scams",
+      desc: "Suspicious phone calls, fake tech support, and IRS/CRA scams.",
+      view: VIEWS.CALL,
+    },
+    {
+      icon: "📧",
+      title: "Email Scams",
+      desc: "Phishing emails, fake attachments, and identity theft.",
+      view: VIEWS.EMAIL,
+    },
+  ];
+
   return (
     <div className="w-screen min-h-screen bg-gray-50 flex flex-col">
       {/* Top bar */}
@@ -14,57 +57,40 @@ export default function Learn({ onBack }) {
         </button>
       </div>
 
-      {/* Hero / Intro */}
+      {/* Hero */}
       <div className="flex flex-col items-center text-center px-6 py-16 bg-gradient-to-r from-[#f5f3ff] to-white">
         <h2 className="text-4xl font-bold text-[#5c52ff] mb-4">
-          Learn & Defend Against Scams
+          Choose Your Learning Path
         </h2>
         <p className="text-lg text-gray-700 max-w-2xl mb-8">
-          Explore interactive lessons, reading modules, and quizzes to strengthen your defenses
-          against online, phone, and email scams.
+          GuardEd gives you two ways to learn: follow a guided journey through structured modules, or freely browse scam topics at your own pace.
         </p>
-        <div className="flex gap-4">
-          <button className="px-6 py-3 bg-[#5c52ff] text-white rounded-full font-semibold hover:bg-[#4335d1] transition">
-            Start Learning
-          </button>
-          <button className="px-6 py-3 border border-[#5c52ff] text-[#5c52ff] rounded-full font-semibold hover:bg-[#e6e3ff] transition">
-            Take a Quiz
-          </button>
-        </div>
       </div>
 
-      {/* Learning Modules */}
-      <div className="px-8 py-16 max-w-7xl mx-auto">
+      {/* Directed Learning Path */}
+      <div className="px-8 py-16 bg-white border-t border-gray-200">
         <h3 className="text-3xl font-bold text-gray-800 mb-10 text-center">
-          Learning Modules
+          Directed Learning
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              title: "Scam Basics",
-              desc: "Understand the fundamentals of scams and how to recognize red flags.",
-            },
-            {
-              title: "Communication Scams",
-              desc: "Learn how scammers use phone calls, emails, and texts to trick people.",
-            },
-            {
-              title: "Advanced Scams",
-              desc: "Dive deeper into investment, romance, and AI-powered scams.",
-            },
-          ].map((module, idx) => (
+        <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
+          Work through step-by-step modules, complete quizzes, and track your progress to build scam awareness skills from the ground up.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {modules.map((module, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-xl transition cursor-pointer"
+              className="bg-[#f5f3ff] rounded-2xl shadow p-8 flex flex-col items-center text-center hover:shadow-xl transition"
             >
-              <div className="w-16 h-16 bg-[#f5f3ff] flex items-center justify-center rounded-full mb-4">
-                <span className="text-2xl">📘</span>
+              <div className="w-16 h-16 bg-white flex items-center justify-center rounded-full mb-4">
+                <span className="text-2xl">🎯</span>
               </div>
-              <h4 className="text-xl font-semibold mb-3 text-[#5c52ff]">
-                {module.title}
-              </h4>
+              <h4 className="text-xl font-semibold mb-3 text-[#5c52ff]">{module.title}</h4>
               <p className="text-gray-600 mb-6">{module.desc}</p>
-              <button className="px-5 py-2 bg-[#5c52ff] text-white rounded-full hover:bg-[#4335d1] transition">
+              <button
+                onClick={() => setView("module-" + idx)}
+                className="px-5 py-2 bg-[#5c52ff] text-white rounded-full hover:bg-[#4335d1] transition"
+              >
                 Start Module
               </button>
             </div>
@@ -72,27 +98,31 @@ export default function Learn({ onBack }) {
         </div>
       </div>
 
-      {/* Quizzes */}
-      <div className="px-8 py-16 bg-white border-t border-gray-200">
+      {/* Self-Learning Path */}
+      <div className="px-8 py-16 bg-gray-50">
         <h3 className="text-3xl font-bold text-gray-800 mb-10 text-center">
-          Test Your Knowledge
+          Self-Learning
         </h3>
+        <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
+          Prefer to explore on your own? Browse topics and read articles on specific scams whenever you like.
+        </p>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {[
-            { title: "Email Safety Quiz", desc: "Can you spot the phishing attempt?" },
-            { title: "Phone Scam Quiz", desc: "Learn to handle suspicious calls safely." },
-            { title: "Phishing Challenge", desc: "Test your ability to detect fake websites." },
-          ].map((quiz, idx) => (
+          {topics.map((topic, idx) => (
             <div
               key={idx}
-              className="bg-[#f5f3ff] rounded-2xl shadow p-6 flex flex-col items-center text-center hover:shadow-xl transition"
+              className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-xl transition"
             >
-              <h4 className="text-xl font-semibold mb-3 text-[#5c52ff]">
-                {quiz.title}
-              </h4>
-              <p className="text-gray-600 mb-6">{quiz.desc}</p>
-              <button className="px-5 py-2 bg-[#5c52ff] text-white rounded-full hover:bg-[#4335d1] transition">
-                Start Quiz
+              <div className="w-16 h-16 bg-[#f5f3ff] flex items-center justify-center rounded-full mb-4">
+                <span className="text-2xl">{topic.icon}</span>
+              </div>
+              <h4 className="text-xl font-semibold mb-3 text-[#5c52ff]">{topic.title}</h4>
+              <p className="text-gray-600 mb-6">{topic.desc}</p>
+              <button
+                onClick={() => setView(topic.view)}
+                className="px-5 py-2 border border-[#5c52ff] text-[#5c52ff] rounded-full hover:bg-[#e6e3ff] transition"
+              >
+                Read More
               </button>
             </div>
           ))}
@@ -100,7 +130,7 @@ export default function Learn({ onBack }) {
       </div>
 
       {/* Resources */}
-      <div className="px-8 py-16 max-w-5xl mx-auto">
+      <div className="px-8 py-16 bg-white border-t border-gray-200">
         <h3 className="text-3xl font-bold text-gray-800 mb-10 text-center">
           Additional Resources
         </h3>

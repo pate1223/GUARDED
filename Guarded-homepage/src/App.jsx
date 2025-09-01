@@ -6,6 +6,9 @@ import Quiz from './Quiz';
 import Home from './Home';
 import SignIn from './SignIn';
 import Learn from './Learn';
+import OnlineScams from './OnlineScams';
+import CallScams from './CallScams';
+import EmailScams from './EmailScams';
 
 // Add translations for EN and FR
 const translations = {
@@ -39,7 +42,6 @@ function App() {
   const [view, setView] = useState('home');
   const [showLang, setShowLang] = useState(false);
 
-  // If SignIn is active, take over the full screen (no top bar, no footer)
   if (view === 'signin') {
     return <SignIn onBack={() => setView('home')} />;
   }
@@ -50,7 +52,6 @@ function App() {
 
       {/* Top bar */}
       <div className="sticky top-6 z-50 w-[900px] mx-auto flex items-center px-10 py-5 shadow-xl bg-white rounded-full mt-8">
-        {/* Logo and title */}
         <div className="flex items-center mr-8">
           <div className="w-16 h-16 bg-white border border-purple-200 rounded-full flex items-center justify-center">
             <img src={Logo} alt="Logo" className="w-10 h-10" />
@@ -58,7 +59,6 @@ function App() {
           <span className="ml-3 text-[#5c52ff] font-extrabold text-xl">GuardEd</span>
         </div>
 
-        {/* Navigation */}
         <nav className="flex gap-12 items-center text-xl font-medium text-gray-700 flex-1 justify-center">
           <button
             className={`hover:text-[#5c52ff] transition ${view === 'home' ? 'text-[#5c52ff] font-bold underline' : ''}`}
@@ -82,7 +82,6 @@ function App() {
           </button>
         </nav>
 
-        {/* Sign in button */}
         <button
           className="ml-8 px-6 py-3 bg-[#5c52ff] text-white rounded-full font-semibold shadow hover:bg-[#4335d1] transition text-base"
           type="button"
@@ -91,7 +90,6 @@ function App() {
           Sign in
         </button>
 
-        {/* Language Globe Toggle */}
         <div className="relative ml-4">
           <button
             className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-[#5c52ff] bg-white hover:bg-purple-50 transition"
@@ -110,18 +108,14 @@ function App() {
           {showLang && (
             <div className="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg py-2 px-4 flex flex-col gap-2 z-50">
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full transition ${
-                  lang === 'EN' ? 'bg-purple-100 font-bold text-[#5c52ff]' : 'hover:bg-purple-50'
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition ${lang === 'EN' ? 'bg-purple-100 font-bold text-[#5c52ff]' : 'hover:bg-purple-50'}`}
                 onClick={() => { setLang('EN'); setShowLang(false); }}
               >
                 <span className="text-2xl">🇬🇧</span>
                 <span className="text-lg font-semibold">EN</span>
               </button>
               <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-full transition ${
-                  lang === 'FR' ? 'bg-purple-100 font-bold text-[#5c52ff]' : 'hover:bg-purple-50'
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition ${lang === 'FR' ? 'bg-purple-100 font-bold text-[#5c52ff]' : 'hover:bg-purple-50'}`}
                 onClick={() => { setLang('FR'); setShowLang(false); }}
               >
                 <span className="text-2xl">🇫🇷</span>
@@ -134,8 +128,13 @@ function App() {
 
       {/* Main content */}
       {view === 'quiz' && <Quiz />}
-      {view === 'learn' && <Learn />}
+      {view === 'learn' && <Learn setView={setView} onBack={() => setView('home')} />}
       {view === 'home' && <Home i18n={i18n} lang={lang} />}
+
+      {/* Scams Pages */}
+      {view === 'online-scams' && <OnlineScams onBack={() => setView('learn')} />}
+      {view === 'call-scams' && <CallScams onBack={() => setView('learn')} />}
+      {view === 'email-scams' && <EmailScams onBack={() => setView('learn')} />}
 
       {/* Extra sections only for Home */}
       {view === 'home' && (
@@ -145,7 +144,6 @@ function App() {
         </>
       )}
 
-      {/* Faint purple bar at the bottom */}
       <div className="w-full h-24 bg-purple-100 absolute left-0 bottom-0 z-0"></div>
     </div>
   );
