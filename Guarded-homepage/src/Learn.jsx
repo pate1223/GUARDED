@@ -8,145 +8,257 @@ const VIEWS = {
 };
 
 export default function Learn({ onBack, setView }) {
-  const modules = [
+  const categories = [
     {
-      title: "Getting Started",
-      desc: "Understand what scams are, why they work, and common red flags.",
+      id: "01",
+      title: "Email Scams",
+      desc: "Spot phishing emails and fake attachments.",
+      icon: "📧",
+      view: VIEWS.EMAIL,
     },
     {
-      title: "Spotting Scams",
-      desc: "Learn how to detect email, phone, and online scams in real life.",
-    },
-    {
-      title: "Defending Yourself",
-      desc: "Practical strategies to protect your money, data, and identity.",
-    },
-  ];
-
-  const topics = [
-    {
-      icon: "💻",
-      title: "Online Scams",
-      desc: "Fake websites, phishing links, and fraudulent online offers.",
-      view: VIEWS.ONLINE,
-    },
-    {
-      icon: "📞",
+      id: "02",
       title: "Call Scams",
-      desc: "Suspicious phone calls, fake tech support, and IRS/CRA scams.",
+      desc: "Detect fake tech support and suspicious phone calls.",
+      icon: "📞",
       view: VIEWS.CALL,
     },
     {
-      icon: "📧",
-      title: "Email Scams",
-      desc: "Phishing emails, fake attachments, and identity theft.",
+      id: "03",
+      title: "Online Scams",
+      desc: "Identify fake websites, phishing links, and fraudulent offers.",
+      icon: "💻",
+      view: VIEWS.ONLINE,
+    },
+  ];
+
+  const learningPaths = [
+    {
+      title: "Everyday Safety for Families",
+      desc: "Learn how to protect your family from online and phone scams with simple steps.",
+      lessons: 4,
+      level: "Beginner",
+      time: "25 mins total",
+      image: "👨‍👩‍👧‍👦", // replace with illustration
+    },
+    {
+      title: "Workplace Security Basics",
+      desc: "Essential tips for employees to spot phishing and protect business data.",
+      lessons: 5,
+      level: "Beginner",
+      time: "30 mins total",
+      image: "💼",
+    },
+    {
+      title: "Digital Safety for Seniors",
+      desc: "Easy, step-by-step guides designed for parents and grandparents to stay safe online.",
+      lessons: 3,
+      level: "Beginner",
+      time: "20 mins total",
+      image: "👴",
+    },
+    {
+      title: "Advanced Fraud Prevention",
+      desc: "Train your team to recognize social engineering, data theft, and compliance risks.",
+      lessons: 6,
+      level: "Advanced",
+      time: "45 mins total",
+      image: "📊",
+    },
+  ];
+
+  const courses = [
+    {
+      title: "Email Security Basics",
+      desc: "Spot phishing emails, malicious links, and fake attachments.",
+      level: "Beginner",
+      time: "20 mins total",
+      image: "/images/email-security.jpg", // swap with real image
       view: VIEWS.EMAIL,
+    },
+    {
+      title: "Workplace Security Basics",
+      desc: "Easy, step-by-step guides designed for parents and grandparents to stay safe online.",
+      level: "Beginner",
+      time: "15 mins total",
+      image: "/images/workplace-security.jpg",
+      view: VIEWS.CALL,
+    },
+    {
+      title: "Digital Safety for Seniors",
+      desc: "Easy, step-by-step guides designed for parents and grandparents to stay safe online.",
+      level: "Intermediate",
+      time: "25 mins total",
+      image: "/images/digital-seniors.jpg",
+      view: VIEWS.ONLINE,
     },
   ];
 
   return (
     <div className="w-screen min-h-screen bg-gray-50 flex flex-col">
-      {/* Top bar */}
-      <div className="w-full flex justify-between items-center px-8 py-4 bg-[#f5f3ff] shadow">
-        <h1 className="text-2xl font-bold text-[#5c52ff]">Learning Hub</h1>
+      {/* Hero Section */}
+      <div className="flex flex-col items-center justify-center text-center px-6 py-24 bg-gradient-to-br from-white to-[#f5f3ff]">
+        <h1 className="text-5xl md:text-6xl font-extrabold text-[#5c52ff] mb-6 leading-tight">
+          Learn How to <br className="hidden md:block" /> Outsmart Scams
+        </h1>
+        <p className="text-lg md:text-xl text-gray-600 max-w-2xl mb-10">
+          Interactive lessons and short guides that teach you to recognize and
+          prevent fraud.
+        </p>
         <button
-          onClick={onBack}
-          className="px-6 py-2 border border-[#5c52ff] rounded-full text-[#5c52ff] hover:bg-[#e6e3ff] font-semibold"
+          onClick={() => {
+            const section = document.getElementById("categories");
+            if (section) {
+              section.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          className="px-8 py-4 bg-[#5c52ff] text-white text-lg font-semibold rounded-full hover:bg-[#4335d1] flex items-center gap-2 transition"
         >
-          Back
+          Start Learning
+          <span className="text-xl">↗</span>
         </button>
       </div>
 
-      {/* Hero */}
-      <div className="flex flex-col items-center text-center px-6 py-16 bg-gradient-to-r from-[#f5f3ff] to-white">
-        <h2 className="text-4xl font-bold text-[#5c52ff] mb-4">
-          Choose Your Learning Path
-        </h2>
-        <p className="text-lg text-gray-700 max-w-2xl mb-8">
-          GuardEd gives you two ways to learn: follow a guided journey through structured modules, or freely browse scam topics at your own pace.
-        </p>
-      </div>
-
-      {/* Directed Learning Path */}
-      <div className="px-8 py-16 bg-white border-t border-gray-200">
-        <h3 className="text-3xl font-bold text-gray-800 mb-10 text-center">
-          Directed Learning
+      {/* Categories Section */}
+      <section id="categories" className="w-full bg-white py-20">
+        <h3 className="text-center text-gray-800 text-2xl italic font-light mb-12 tracking-wide">
+          CATEGORIES ✦
         </h3>
-        <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
-          Work through step-by-step modules, complete quizzes, and track your progress to build scam awareness skills from the ground up.
+
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8 max-w-6xl mx-auto">
+          {/* Left Side Placeholder for Image */}
+          <div className="w-64 h-64 bg-gray-200 rounded-xl flex items-center justify-center text-gray-500">
+            [Image Placeholder]
+          </div>
+
+          {/* Categories side-by-side */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 flex-1">
+            {categories.map((cat) => (
+              <div
+                key={cat.id}
+                onClick={() => setView(cat.view)}
+                className="bg-[#e6e3ff] hover:bg-[#5c52ff] hover:text-white text-gray-800 rounded-xl p-6 shadow-md cursor-pointer transition-all duration-300 flex flex-col items-center text-center"
+              >
+                <div className="text-3xl mb-3">{cat.icon}</div>
+                <p className="text-sm font-light">{cat.id}</p>
+                <h4 className="text-lg font-bold mb-2">{cat.title}</h4>
+                <p className="text-sm">{cat.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Learning Paths */}
+      <section id="featured-paths" className="w-full bg-gray-50 py-20">
+        <div className="bg-[#5c52ff] text-white text-center py-4 rounded-t-full mb-10 max-w-5xl mx-auto">
+          <h3 className="text-2xl font-bold">FEATURED LEARNING PATHS</h3>
+        </div>
+
+        <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12 px-6">
+          Each learning path is designed to walk you step by step through
+          real-world examples, safety tips, and quick exercises, so you can
+          build confidence in spotting and preventing fraud.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {modules.map((module, idx) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto px-6">
+          {learningPaths.map((path, idx) => (
             <div
               key={idx}
-              className="bg-[#f5f3ff] rounded-2xl shadow p-8 flex flex-col items-center text-center hover:shadow-xl transition"
+              className="bg-white border-2 border-[#5c52ff] rounded-2xl p-6 shadow hover:shadow-lg transition flex flex-col items-center text-center"
             >
-              <div className="w-16 h-16 bg-white flex items-center justify-center rounded-full mb-4">
-                <span className="text-2xl">🎯</span>
+              <h4 className="text-lg font-bold mb-2">{path.title}</h4>
+              <p className="text-sm text-gray-600 mb-4">{path.desc}</p>
+              <div className="text-6xl mb-4">{path.image}</div>
+              <div className="text-sm text-gray-700 mb-4">
+                {path.lessons} lessons • {path.level} • {path.time}
               </div>
-              <h4 className="text-xl font-semibold mb-3 text-[#5c52ff]">{module.title}</h4>
-              <p className="text-gray-600 mb-6">{module.desc}</p>
-              <button
-                onClick={() => setView("module-" + idx)}
-                className="px-5 py-2 bg-[#5c52ff] text-white rounded-full hover:bg-[#4335d1] transition"
-              >
-                Start Module
+              <button className="px-5 py-2 border border-gray-800 rounded-full hover:bg-[#5c52ff] hover:text-white transition">
+                View Path
               </button>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Self-Learning Path */}
-      <div className="px-8 py-16 bg-gray-50">
-        <h3 className="text-3xl font-bold text-gray-800 mb-10 text-center">
-          Self-Learning
-        </h3>
-        <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
-          Prefer to explore on your own? Browse topics and read articles on specific scams whenever you like.
+      {/* Courses Section */}
+      <section id="courses" className="w-full bg-white py-20">
+        <div className="bg-[#5c52ff] text-white text-center py-4 rounded-t-full mb-10 max-w-5xl mx-auto">
+          <h3 className="text-2xl font-bold">COURSES</h3>
+        </div>
+
+        <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12 px-6">
+          Short, practical courses designed to teach you one concept at a time,
+          from spotting phishing emails to understanding compliance rules.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {topics.map((topic, idx) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-6">
+          {courses.map((course, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-xl transition"
+              className="bg-white border-2 border-[#5c52ff] rounded-2xl shadow hover:shadow-lg transition flex flex-col text-center overflow-hidden"
             >
-              <div className="w-16 h-16 bg-[#f5f3ff] flex items-center justify-center rounded-full mb-4">
-                <span className="text-2xl">{topic.icon}</span>
+              {/* Course image */}
+              <div
+                className="h-48 bg-cover bg-center"
+                style={{ backgroundImage: `url(${course.image})` }}
+              ></div>
+
+              <div className="p-6 flex flex-col flex-grow">
+                <h4 className="text-lg font-bold mb-2">{course.title}</h4>
+                <p className="text-sm text-gray-600 mb-4 flex-grow">
+                  {course.desc}
+                </p>
+                <div className="text-sm text-gray-700 mb-4">
+                  {course.level} • {course.time}
+                </div>
+                <div className="flex justify-center gap-4">
+                  <button className="px-4 py-2 border border-gray-800 rounded-full hover:bg-gray-800 hover:text-white transition">
+                    View Details
+                  </button>
+                  <button
+                    onClick={() => setView(course.view)}
+                    className="px-4 py-2 bg-gradient-to-r from-[#6a5cff] to-[#5c52ff] text-white rounded-full hover:opacity-90 transition"
+                  >
+                    Start
+                  </button>
+                </div>
               </div>
-              <h4 className="text-xl font-semibold mb-3 text-[#5c52ff]">{topic.title}</h4>
-              <p className="text-gray-600 mb-6">{topic.desc}</p>
-              <button
-                onClick={() => setView(topic.view)}
-                className="px-5 py-2 border border-[#5c52ff] text-[#5c52ff] rounded-full hover:bg-[#e6e3ff] transition"
-              >
-                Read More
-              </button>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Resources */}
-      <div className="px-8 py-16 bg-white border-t border-gray-200">
+      <div className="px-8 py-16 bg-gray-50 border-t border-gray-200">
         <h3 className="text-3xl font-bold text-gray-800 mb-10 text-center">
           Additional Resources
         </h3>
         <ul className="space-y-4 text-lg text-[#5c52ff] text-center">
           <li>
-            <a href="https://www.antifraudcentre-centreantifraude.ca/" target="_blank" rel="noreferrer">
+            <a
+              href="https://www.antifraudcentre-centreantifraude.ca/"
+              target="_blank"
+              rel="noreferrer"
+            >
               Canadian Anti-Fraud Centre
             </a>
           </li>
           <li>
-            <a href="https://www.consumer.ftc.gov/features/scam-alerts" target="_blank" rel="noreferrer">
+            <a
+              href="https://www.consumer.ftc.gov/features/scam-alerts"
+              target="_blank"
+              rel="noreferrer"
+            >
               FTC Scam Alerts
             </a>
           </li>
           <li>
-            <a href="https://www.getcybersafe.gc.ca/en" target="_blank" rel="noreferrer">
+            <a
+              href="https://www.getcybersafe.gc.ca/en"
+              target="_blank"
+              rel="noreferrer"
+            >
               Government of Canada: Get Cyber Safe
             </a>
           </li>
