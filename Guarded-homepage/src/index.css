@@ -9,3 +9,159 @@
 h1, .font-extrabold {
   font-family: 'Outfit', Arial, sans-serif;
 }
+
+/* design tokens for light/dark */
+:root{
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --muted: #9ca3af; /* gray-400 */
+  --text: #1f2937; /* gray-800 */
+  --primary: #5c52ff;
+  --primary-600: #4335d1;
+}
+
+/* dark theme tokens */
+.dark{
+  --bg: #0b0b0d;
+  --panel: #0f1720; /* dark panel */
+  --muted: #9ca3af;
+  --text: #e6e6ea;
+  --primary: #7b6bff;
+  --primary-600: #5c46e6;
+}
+
+/* apply tokens globally */
+html, body, #root {
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color .25s ease, color .25s ease;
+}
+
+/* convenience utilities to make existing components adapt *without* changing all JSX:
+   these override Tailwind's utility classes where present (limited set). Use carefully. */
+
+/* override common light backgrounds so panels feel dark in dark mode */
+.dark .bg-white {
+  background-color: var(--panel) !important;
+}
+
+/* inputs / card backgrounds */
+.dark .bg-\[\#fbfbfd\] {
+  background-color: #0f1724 !important;
+}
+
+/* border overrides */
+.dark .border-gray-200 {
+  border-color: #1f2937 !important;
+}
+
+/* text overrides for common classes */
+.dark .text-gray-800 { color: var(--text) !important; }
+.dark .text-gray-400 { color: #9ca3af !important; }
+.dark .text-gray-500 { color: #9ca3af !important; }
+
+/* primary button color adapt */
+.dark .bg-\[#5c52ff\] { background-color: var(--primary) !important; }
+.dark .hover\:bg-\[\#4335d1\]:hover { background-color: var(--primary-600) !important; }
+
+/* small tweak for left panel background colour in dark */
+.dark .bg-\[#e6e3ff\] {
+  background-color: rgba(92,82,255,0.08) !important;
+}
+
+/* ensure shadows are more subtle in dark */
+.dark .shadow-2xl { box-shadow: 0 10px 30px rgba(0,0,0,0.6) !important; }
+
+/* make rounded back button visible in dark */
+.dark .bg-white { color: var(--text); }
+.dark .bg-white svg { stroke: var(--primary); }
+
+/* Theme switch updated: slot inside curved figure */
+.theme-switch {
+  --w: 72px;
+  --h: 40px;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  width: var(--w);
+  height: var(--h);
+  border-radius: 9999px;
+  background: linear-gradient(180deg,#ffffff,#f3f3ff);
+  box-shadow: 0 6px 18px rgba(92,82,255,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+  border: 1px solid rgba(92,82,255,0.08);
+  cursor: pointer;
+  transition: background .2s ease, box-shadow .2s ease;
+  position: relative;
+}
+
+.theme-track { width:100%; position:relative; display:block; height:100%; }
+
+/* the moving "curved figure" (slot) that holds the sun/moon symbol */
+.theme-slot {
+  --k: 32px;
+  width: var(--k);
+  height: var(--k);
+  border-radius: 9999px;
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg,#ffd84d,#f6c84d); /* sun default */
+  box-shadow: 0 6px 14px rgba(92,82,255,0.12);
+  transition: transform .28s cubic-bezier(.2,.9,.35,1), background .2s ease, box-shadow .2s ease, left .28s ease;
+  z-index: 30;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.6);
+}
+
+/* decorative ring behind the slot to create the curved inset look */
+.theme-knob {
+  --k: 38px;
+  width: var(--k);
+  height: var(--k);
+  border-radius: 9999px;
+  position: absolute;
+  left: 4px;
+  top: calc(50% - var(--k)/2);
+  background: linear-gradient(180deg,#ffffff,#f6f5ff);
+  box-shadow: 0 8px 20px rgba(92,82,255,0.08);
+  z-index: 10;
+  transition: transform .28s cubic-bezier(.2,.9,.35,1), background .2s ease;
+  border: 1px solid rgba(92,82,255,0.08);
+}
+
+/* slot icons */
+.theme-slot svg { position: absolute; transition: opacity .18s ease, transform .18s ease; }
+.slot-moon { opacity: 0; transform: scale(.9); }
+.slot-sun { opacity: 1; transform: scale(1); }
+
+/* dark mode: move slot to the right, change visuals to moon */
+.dark .theme-switch {
+  background: linear-gradient(180deg,#111217,#0e0f13);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.dark .theme-slot {
+  left: calc(var(--w) - var(--k) - 4px);
+  background: linear-gradient(180deg,#111318,#2a2a2f); /* moon background */
+  box-shadow: 0 6px 16px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.dark .theme-knob {
+  left: calc(var(--w) - var(--k) - 8px);
+  background: linear-gradient(180deg,#1f1f24,#0e0f13);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.6);
+}
+
+/* swap icon visibility */
+.dark .slot-moon { opacity: 1; transform: scale(1); }
+.dark .slot-sun { opacity: 0; transform: scale(.8); }
+
+/* small responsive adjustments */
+@media (max-width:640px) {
+  .theme-switch { --w:60px; --h:34px; }
+  .theme-slot { --k:28px; }
+  .theme-knob { --k:32px; }
+}
