@@ -39,7 +39,7 @@ export default function Learn({ onBack, setView }) {
       lessons: 4,
       level: "Beginner",
       time: "25 mins total",
-      image: "👨‍👩‍👧‍👦", // replace with illustration
+      image: "👨‍👩‍👧‍👦",
     },
     {
       title: "Workplace Security Basics",
@@ -73,7 +73,7 @@ export default function Learn({ onBack, setView }) {
       desc: "Spot phishing emails, malicious links, and fake attachments.",
       level: "Beginner",
       time: "20 mins total",
-      image: "/images/email-security.jpg", // swap with real image
+      image: "/images/email-security.jpg",
       view: VIEWS.EMAIL,
     },
     {
@@ -96,58 +96,64 @@ export default function Learn({ onBack, setView }) {
 
   return (
     <div className="w-screen min-h-screen bg-gray-50 flex flex-col">
-      {/* Hero Section */}
-      <div className="flex flex-col items-center justify-center text-center px-6 py-24 bg-gradient-to-br from-white to-[#f5f3ff]">
-        <h1 className="text-5xl md:text-6xl font-extrabold text-[#5c52ff] mb-6 leading-tight">
-          Learn How to <br className="hidden md:block" /> Outsmart Scams
-        </h1>
-        <p className="text-lg md:text-xl text-gray-600 max-w-2xl mb-10">
-          Interactive lessons and short guides that teach you to recognize and
-          prevent fraud.
-        </p>
-        <button
-          onClick={() => {
-            const section = document.getElementById("categories");
-            if (section) {
-              section.scrollIntoView({ behavior: "smooth" });
-            }
-          }}
-          className="px-8 py-4 bg-[#5c52ff] text-white text-lg font-semibold rounded-full hover:bg-[#4335d1] flex items-center gap-2 transition"
+ {/* Hero Section */}
+<section className="min-h-screen flex flex-col items-center justify-center text-center px-6 bg-gradient-to-br from-white to-[#f5f3ff]">
+  <div className="flex flex-col items-center gap-y-8 max-w-4xl">
+    <h1 className="text-6xl md:text-7xl font-extrabold text-[#5c52ff] leading-tight">
+      Learn How to <br className="hidden md:block" /> Outsmart Scams
+    </h1>
+    <p className="text-xl md:text-2xl text-gray-600 max-w-2xl">
+      Interactive lessons and short guides that teach you to recognize, avoid,
+      and prevent fraud in everyday life.
+    </p>
+    <button
+      onClick={() => {
+        const section = document.getElementById("categories");
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth" });
+        }
+      }}
+      className="px-10 py-4 bg-[#5c52ff] text-white text-xl font-semibold rounded-full hover:bg-[#4335d1] flex items-center gap-3 transition"
+    >
+      Start Learning
+      <span className="text-2xl">↗</span>
+    </button>
+  </div>
+</section>
+
+{/* Categories Section */}
+<section
+  id="categories"
+  className="min-h-screen flex flex-col items-center justify-center bg-white px-6 py-16"
+>
+  <h3 className="text-4xl font-bold text-gray-800 mb-14 tracking-wide text-center">
+    Explore Categories ✦
+  </h3>
+
+  <div className="flex flex-col md:flex-row items-center justify-center gap-16 max-w-6xl mx-auto w-full">
+    {/* Left Side Placeholder for Image */}
+    <div className="w-72 h-72 bg-gray-200 rounded-2xl flex items-center justify-center text-gray-500 text-lg">
+      [Image Placeholder]
+    </div>
+
+    {/* Categories */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 flex-1">
+      {categories.map((cat) => (
+        <div
+          key={cat.id}
+          onClick={() => setView(cat.view)}
+          className="bg-[#e6e3ff] hover:bg-[#5c52ff] hover:text-white text-gray-800 rounded-2xl p-8 shadow-md cursor-pointer transition-all duration-300 flex flex-col items-center text-center"
         >
-          Start Learning
-          <span className="text-xl">↗</span>
-        </button>
-      </div>
-
-      {/* Categories Section */}
-      <section id="categories" className="w-full bg-white py-20">
-        <h3 className="text-center text-gray-800 text-2xl italic font-light mb-12 tracking-wide">
-          CATEGORIES ✦
-        </h3>
-
-        <div className="flex flex-col md:flex-row items-center justify-center gap-8 max-w-6xl mx-auto">
-          {/* Left Side Placeholder for Image */}
-          <div className="w-64 h-64 bg-gray-200 rounded-xl flex items-center justify-center text-gray-500">
-            [Image Placeholder]
-          </div>
-
-          {/* Categories side-by-side */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 flex-1">
-            {categories.map((cat) => (
-              <div
-                key={cat.id}
-                onClick={() => setView(cat.view)}
-                className="bg-[#e6e3ff] hover:bg-[#5c52ff] hover:text-white text-gray-800 rounded-xl p-6 shadow-md cursor-pointer transition-all duration-300 flex flex-col items-center text-center"
-              >
-                <div className="text-3xl mb-3">{cat.icon}</div>
-                <p className="text-sm font-light">{cat.id}</p>
-                <h4 className="text-lg font-bold mb-2">{cat.title}</h4>
-                <p className="text-sm">{cat.desc}</p>
-              </div>
-            ))}
-          </div>
+          <div className="text-4xl mb-4">{cat.icon}</div>
+          <p className="text-sm font-light mb-1">{cat.id}</p>
+          <h4 className="text-xl font-bold mb-3">{cat.title}</h4>
+          <p className="text-base">{cat.desc}</p>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
+
 
       {/* Featured Learning Paths */}
       <section id="featured-paths" className="w-full bg-gray-50 py-20">
