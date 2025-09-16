@@ -52,7 +52,7 @@ function App() {
       <div className="absolute inset-0 bg-[#5c52ff] opacity-10 pointer-events-none z-0"></div>
 
       {/* Top bar */}
-      <div className="sticky top-6 z-50 w-[900px] mx-auto flex items-center px-10 py-5 shadow-xl bg-white rounded-full mt-8">
+      <div className="top-0 z-50 w-[900px] mx-auto flex items-center px-10 py-5 shadow-xl bg-white rounded-full mt-8">
         <div className="flex items-center mr-8">
           <div className="w-16 h-16 bg-white border border-purple-200 rounded-full flex items-center justify-center">
             <img src={Logo} alt="Logo" className="w-10 h-10" />

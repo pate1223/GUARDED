@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import EmailScamImg from "./assets/Email-scams.png";
+import CallScamImg from "./assets/Call-scams.png";
+import OnlineScamImg from "./assets/Online-scams.png";
 
 // Define view constants
 const VIEWS = {
@@ -43,7 +46,7 @@ export default function Learn({ onBack }) {
           lessons: 3,
           level: "Beginner",
           time: "20 mins total",
-          image: "📨",
+          image: "",
         },
         {
           title: "Avoiding Malicious Attachments",
@@ -51,7 +54,7 @@ export default function Learn({ onBack }) {
           lessons: 4,
           level: "Beginner",
           time: "30 mins total",
-          image: "📎",
+          image: "",
         },
       ],
       courses: [
@@ -72,7 +75,7 @@ export default function Learn({ onBack }) {
           lessons: 2,
           level: "Beginner",
           time: "15 mins total",
-          image: "📞",
+          image: "",
         },
         {
           title: "Protecting Elderly from Call Scams",
@@ -80,7 +83,7 @@ export default function Learn({ onBack }) {
           lessons: 3,
           level: "Beginner",
           time: "25 mins total",
-          image: "👴",
+          image: "",
         },
       ],
       courses: [
@@ -101,7 +104,7 @@ export default function Learn({ onBack }) {
           lessons: 4,
           level: "Beginner",
           time: "30 mins total",
-          image: "🛒",
+          image: "",
         },
         {
           title: "Social Media Security",
@@ -109,7 +112,7 @@ export default function Learn({ onBack }) {
           lessons: 5,
           level: "Intermediate",
           time: "35 mins total",
-          image: "💻",
+          image: "",
         },
       ],
       courses: [
@@ -181,7 +184,7 @@ export default function Learn({ onBack }) {
           <button
             aria-label="Previous category"
             onClick={prevCategory}
-            className="absolute -left-20 top-1/2 -translate-y-1/2 z-30 bg-[#5c52ff] text-white p-3 rounded-full shadow hover:bg-[#4335d1] transition"
+            className="absolute left-20 top-1/2 -translate-y-1/2 z-30 bg-[#5c52ff] text-white p-3 rounded-full shadow hover:bg-[#4335d1] transition"
           >
             <ChevronLeft size={22} />
           </button>
