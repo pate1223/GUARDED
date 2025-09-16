@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import EmailScamImg from "./assets/Email-scams.png";
 import CallScamImg from "./assets/Call-scams.png";
 import OnlineScamImg from "./assets/Online-scams.png";
+import Logo from "./assets/logo.png";
 
 // Define view constants
 const VIEWS = {
@@ -143,7 +144,7 @@ export default function Learn({ onBack }) {
   return (
     <div className="w-screen min-h-screen bg-gray-50 flex flex-col">
       {/* Hero Section */}
-      <section className="min-h-screen flex flex-col items-center justify-center text-center px-6 bg-gradient-to-br from-white to-[#f5f3ff]">
+      <section className="min-h-screen flex flex-col items-center justify-start pt-32 text-center px-6 bg-gradient-to-br from-white to-[#f5f3ff]">
         <div className="flex flex-col items-center gap-y-8 max-w-4xl">
           <h1 className="text-6xl md:text-7xl font-extrabold text-[#5c52ff] leading-tight">
             Learn How to <br className="hidden md:block" /> Outsmart Scams
@@ -179,71 +180,85 @@ export default function Learn({ onBack }) {
           </p>
         </div>
 
-        <div className="relative w-[560px] h-[560px]">
-          {/* Arrows */}
-          <button
-            aria-label="Previous category"
-            onClick={prevCategory}
-            className="absolute left-20 top-1/2 -translate-y-1/2 z-30 bg-[#5c52ff] text-white p-3 rounded-full shadow hover:bg-[#4335d1] transition"
-          >
-            <ChevronLeft size={22} />
-          </button>
-          <button
-            aria-label="Next category"
-            onClick={nextCategory}
-            className="absolute -right-20 top-1/2 -translate-y-1/2 z-30 bg-[#5c52ff] text-white p-3 rounded-full shadow hover:bg-[#4335d1] transition"
-          >
-            <ChevronRight size={22} />
-          </button>
+        
 
-          {/* Cards */}
-          <div className="relative w-full h-full">
-            {categories.map((cat, index) => {
-              const theta = (index - activeIndex) * angleStepDeg;
-              const transform = `rotate(${theta}deg) translateY(-${radius}px) rotate(${-theta}deg)`;
-              const isActive = index === activeIndex;
+          {/* Flex container for logo + wheel */}
+  <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+    {/* Logo */}
+    <img
+      src={Logo}
+      alt="GuardEd Logo"
+      className="w-10 h-10 object-contain"
+    />
 
-              return (
-                <div
-                  key={cat.id}
-                  onClick={() => setActiveIndex(index)}
-                  className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                    w-72 h-72 rounded-2xl p-6 shadow-lg cursor-pointer
-                    transition-[transform,opacity,background-color,box-shadow] duration-500 ease-out
-                    flex flex-col`}
-                  style={{
-                    transform,
-                    zIndex: isActive ? 20 : 5,
-                    backgroundColor: isActive ? "#5c52ff" : "rgba(92,82,255,0.1)",
-                    color: isActive ? "#ffffff" : "rgba(0,0,0,0.45)",
-                    opacity: isActive ? 1 : 0.55,
-                    boxShadow: isActive
-                      ? "0 25px 40px rgba(92,82,255,0.35)"
-                      : "0 10px 20px rgba(0,0,0,0.08)",
-                  }}
-                >
-                  <p className="text-sm font-light">{cat.id}</p>
-                  <h4 className="text-2xl font-extrabold mt-1 mb-3">{cat.title}</h4>
-                  <p className="text-sm leading-relaxed flex-grow">{cat.desc}</p>
-                  <div className="text-4xl mt-4">{cat.icon}</div>
-                  {isActive && (
-                    <div className="mt-4">
-                      <button
-                        onClick={() => {
-                          const section = document.getElementById("featured-paths");
-                          if (section) section.scrollIntoView({ behavior: "smooth" });
-                        }}
-                        className="px-4 py-2 bg-white text-[#5c52ff] rounded-full font-semibold hover:bg-[#f0efff] transition"
-                      >
-                        View Content
-                      </button>
-                    </div>
-                  )}
+    {/* Wheel */}
+    <div className="relative w-[560px] h-[560px]">
+      {/* Arrows */}
+      <button
+        aria-label="Previous category"
+        onClick={prevCategory}
+        className="absolute left-20 top-1/2 -translate-y-1/2 z-30 bg-[#5c52ff] text-white p-3 rounded-full shadow hover:bg-[#4335d1] transition"
+      >
+        <ChevronLeft size={22} />
+      </button>
+      <button
+        aria-label="Next category"
+        onClick={nextCategory}
+        className="absolute -right-20 top-1/2 -translate-y-1/2 z-30 bg-[#5c52ff] text-white p-3 rounded-full shadow hover:bg-[#4335d1] transition"
+      >
+        <ChevronRight size={22} />
+      </button>
+
+      {/* Cards */}
+      <div className="relative w-full h-full">
+        {categories.map((cat, index) => {
+          const theta = (index - activeIndex) * angleStepDeg;
+          const transform = `rotate(${theta}deg) translateY(-${radius}px) rotate(${-theta}deg)`;
+          const isActive = index === activeIndex;
+
+          return (
+            <div
+              key={cat.id}
+              onClick={() => setActiveIndex(index)}
+              className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+                w-72 h-72 rounded-2xl p-6 shadow-lg cursor-pointer
+                transition-[transform,opacity,background-color,box-shadow] duration-500 ease-out
+                flex flex-col`}
+              style={{
+                transform,
+                zIndex: isActive ? 20 : 5,
+                backgroundColor: isActive ? "#5c52ff" : "rgba(92,82,255,0.1)",
+                color: isActive ? "#ffffff" : "rgba(0,0,0,0.45)",
+                opacity: isActive ? 1 : 0.55,
+                boxShadow: isActive
+                  ? "0 25px 40px rgba(92,82,255,0.35)"
+                  : "0 10px 20px rgba(0,0,0,0.08)",
+              }}
+            >
+              <p className="text-sm font-light">{cat.id}</p>
+              <h4 className="text-2xl font-extrabold mt-1 mb-3">{cat.title}</h4>
+              <p className="text-sm leading-relaxed flex-grow">{cat.desc}</p>
+              <div className="text-4xl mt-4">{cat.icon}</div>
+              {isActive && (
+                <div className="mt-4">
+                  <button
+                    onClick={() => {
+                      const section = document.getElementById("featured-paths");
+                      if (section) section.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="px-4 py-2 bg-white text-[#5c52ff] rounded-full font-semibold hover:bg-[#f0efff] transition"
+                  >
+                    View Content
+                  </button>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+
       </section>
 
 {/* Featured Learning Paths */}
