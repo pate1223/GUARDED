@@ -188,7 +188,7 @@ export default function Learn({ onBack }) {
     <img
       src={Logo}
       alt="GuardEd Logo"
-      className="w-10 h-10 object-contain"
+      className="max-w-xs md:max-w-sm object-contain"
     />
 
     {/* Wheel */}
