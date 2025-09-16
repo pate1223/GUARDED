@@ -30,7 +30,6 @@ export default function ThemeToggle({ className = "" }) {
       className={`theme-switch ${className}`}
     >
       <span className="theme-track" aria-hidden>
-        {/* Curved slot that contains the sun / moon symbol */}
         <span className="theme-slot" aria-hidden>
           <svg className="slot-sun" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <circle cx="12" cy="12" r="4"></circle>
@@ -42,7 +41,6 @@ export default function ThemeToggle({ className = "" }) {
           </svg>
         </span>
 
-        {/* decorative knob ring sits behind the slot for the curved look */}
         <span className="theme-knob" aria-hidden></span>
       </span>
     </button>

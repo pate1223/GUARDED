@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Guarded</title>
     <script>
-      // set initial theme before React mounts to avoid flash
+      // apply saved or OS-preferred theme before React mounts
       (function() {
         try {
           var t = localStorage.getItem('theme');

@@ -48,8 +48,46 @@ function App() {
   }
 
   return (
-    <div className="relative w-full bg-white text-black min-h-screen flex flex-col items-center border-none p-0 m-0">
-      <div className="absolute inset-0 bg-[#5c52ff] opacity-10 pointer-events-none z-0"></div>
+    <div className="relative w-full min-h-screen flex flex-col items-center border-none p-0 m-0">
+      {/* top controls — single theme toggle placed here */}
+      <div className="fixed top-6 right-8 z-50 flex items-center gap-4">
+        <ThemeToggle />
+        {/* globe / language button */}
+        <div className="relative">
+          <button
+            className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-[#5c52ff] bg-white hover:bg-purple-50 transition"
+            onClick={() => setShowLang(!showLang)}
+            aria-label="Toggle language"
+            type="button"
+          >
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="14" r="12" stroke="#5c52ff" strokeWidth="2" />
+              <ellipse cx="14" cy="14" rx="7" ry="12" stroke="#5c52ff" strokeWidth="2" />
+              <line x1="2" y1="14" x2="26" y2="14" stroke="#5c52ff" strokeWidth="2" />
+              <line x1="14" y1="2" x2="14" y2="26" stroke="#5c52ff" strokeWidth="2" />
+            </svg>
+          </button>
+
+          {showLang && (
+            <div className="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg py-2 px-4 flex flex-col gap-2 z-50">
+              <button
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition ${lang === 'EN' ? 'bg-purple-100 font-bold text-[#5c52ff]' : 'hover:bg-purple-50'}`}
+                onClick={() => { setLang('EN'); setShowLang(false); }}
+              >
+                <span className="text-2xl">🇬🇧</span>
+                <span className="text-lg font-semibold">EN</span>
+              </button>
+              <button
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition ${lang === 'FR' ? 'bg-purple-100 font-bold text-[#5c52ff]' : 'hover:bg-purple-50'}`}
+                onClick={() => { setLang('FR'); setShowLang(false); }}
+              >
+                <span className="text-2xl">🇫🇷</span>
+                <span className="text-lg font-semibold">FR</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Top bar */}
       <div className="sticky top-6 z-50 w-[900px] mx-auto flex items-center px-10 py-5 shadow-xl bg-white rounded-full mt-8">
@@ -90,46 +128,6 @@ function App() {
         >
           Sign in
         </button>
-
-        <div className="relative ml-4 flex items-center gap-4">
-          {/* theme toggle next to language globe */}
-          <ThemeToggle />
-
-          <div className="relative">
-            <button
-              className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-[#5c52ff] bg-white hover:bg-purple-50 transition"
-              onClick={() => setShowLang(!showLang)}
-              aria-label="Toggle language"
-              type="button"
-            >
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                <circle cx="14" cy="14" r="12" stroke="#5c52ff" strokeWidth="2" />
-                <ellipse cx="14" cy="14" rx="7" ry="12" stroke="#5c52ff" strokeWidth="2" />
-                <line x1="2" y1="14" x2="26" y2="14" stroke="#5c52ff" strokeWidth="2" />
-                <line x1="14" y1="2" x2="14" y2="26" stroke="#5c52ff" strokeWidth="2" />
-              </svg>
-            </button>
-
-            {showLang && (
-              <div className="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg py-2 px-4 flex flex-col gap-2 z-50">
-                <button
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full transition ${lang === 'EN' ? 'bg-purple-100 font-bold text-[#5c52ff]' : 'hover:bg-purple-50'}`}
-                  onClick={() => { setLang('EN'); setShowLang(false); }}
-                >
-                  <span className="text-2xl">🇬🇧</span>
-                  <span className="text-lg font-semibold">EN</span>
-                </button>
-                <button
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full transition ${lang === 'FR' ? 'bg-purple-100 font-bold text-[#5c52ff]' : 'hover:bg-purple-50'}`}
-                  onClick={() => { setLang('FR'); setShowLang(false); }}
-                >
-                  <span className="text-2xl">🇫🇷</span>
-                  <span className="text-lg font-semibold">FR</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
 
       {/* Main content */}
