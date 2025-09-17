@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Logo from "./assets/logo.png";
 import Undraw from "./assets/undraw_surveillance_k6wl 1.png";
 import ForgotPassword from "./ForgotPassword"; // <-- added import
+import GoogleIcon from "./assets/google-color.png";
 
 export default function Login({ onBack, onCloseParent }) {
   const [email, setEmail] = useState("");
@@ -120,14 +121,12 @@ export default function Login({ onBack, onCloseParent }) {
           </div>
 
           <div className="flex gap-4 mb-4">
-            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition">
+            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition" type="button" aria-label="Continue with Facebook">
               <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" className="w-6 h-6" />
             </button>
-            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition">
-              <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#000"/><path d="M12 7v5l4 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </button>
-            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="w-6 h-6" />
+
+            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition" type="button" aria-label="Continue with Google">
+              <img src={GoogleIcon} alt="Google" className="w-6 h-6" />
             </button>
           </div>
 

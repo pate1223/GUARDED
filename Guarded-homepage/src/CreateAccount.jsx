@@ -1,24 +1,27 @@
 import React, { useState } from "react";
 import Logo from "./assets/logo.png";
 import Undraw from "./assets/undraw_surveillance_k6wl 1.png";
+import GoogleIcon from "./assets/google-color.png";
 
 export default function CreateAccount({ onBack, onGoToLogin, onCloseParent }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [agree, setAgree] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!agree) return alert("Please agree to terms and conditions.");
-    console.log("create-account", { name, email, phone, password });
+    console.log("create-account", { name, email, password });
     // TODO: real signup flow
   };
 
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-white">
+      {/* make pane scrollable when content overflows (prevents logo being clipped) */}
       <div className="w-[1100px] h-[650px] bg-white rounded-3xl shadow-2xl flex overflow-hidden">
         {/* Left Illustration */}
         <div className="w-1/2 bg-[#e6e3ff] flex flex-col justify-center items-center relative">
@@ -48,9 +51,11 @@ export default function CreateAccount({ onBack, onGoToLogin, onCloseParent }) {
           </div>
         </div>
 
-        {/* Right: Create Account Form */}
-        <div className="w-1/2 flex flex-col items-center justify-center bg-white px-8">
+        {/* Right: Create Account Form (scrollable) */}
+        <div className="w-1/2 flex flex-col items-center justify-start bg-white px-8 py-6 overflow-y-auto max-h-[650px]">
           <div className="flex flex-col items-center mb-6">
+            {/* add top padding so logo isn't clipped when scrolled */}
+            <div style={{ height: 8 }} />
             <div className="w-20 h-20 rounded-full border-4 border-[#bcb6ff] flex items-center justify-center mb-4">
               <img src={Logo} alt="GuardEd logo" className="w-12 h-12" />
             </div>
@@ -83,36 +88,43 @@ export default function CreateAccount({ onBack, onGoToLogin, onCloseParent }) {
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5c52ff]">✉️</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="relative">
-                <input
-                  type="tel"
-                  placeholder="Enter Phone No."
-                  className="w-full py-4 pl-12 pr-4 rounded-xl border border-[#f1efff] bg-[#fbfbfd] text-lg focus:outline-none focus:border-[#5c52ff] transition"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5c52ff]">📞</span>
-              </div>
+            {/* Password and Confirm Password (stacked) */}
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter Password"
+                className="w-full py-4 pl-12 pr-12 rounded-xl border border-[#f1efff] bg-[#fbfbfd] text-lg focus:outline-none focus:border-[#5c52ff] transition"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5c52ff]">🔒</span>
+              <button
+                type="button"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5c52ff] focus:outline-none"
+                onClick={() => setShowPassword((s) => !s)}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
 
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter Password"
-                  className="w-full py-4 pl-12 pr-12 rounded-xl border border-[#f1efff] bg-[#fbfbfd] text-lg focus:outline-none focus:border-[#5c52ff] transition"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5c52ff]">🔒</span>
-                <button
-                  type="button"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5c52ff] focus:outline-none"
-                  onClick={() => setShowPassword((s) => !s)}
-                >
-                  {showPassword ? "🙈" : "👁️"}
-                </button>
-              </div>
+            <div className="relative">
+              <input
+                type={showConfirm ? "text" : "password"}
+                placeholder="Confirm Password"
+                className="w-full py-4 pl-12 pr-12 rounded-xl border border-[#f1efff] bg-[#fbfbfd] text-lg focus:outline-none focus:border-[#5c52ff] transition"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                required
+              />
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5c52ff]">🔒</span>
+              <button
+                type="button"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5c52ff] focus:outline-none"
+                onClick={() => setShowConfirm((s) => !s)}
+              >
+                {showConfirm ? "🙈" : "👁️"}
+              </button>
             </div>
 
             <label className="flex items-center gap-3 text-gray-600">
@@ -132,14 +144,12 @@ export default function CreateAccount({ onBack, onGoToLogin, onCloseParent }) {
           </div>
 
           <div className="flex gap-4 mb-4">
-            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition">
+            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition" type="button" aria-label="Continue with Facebook">
               <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" className="w-6 h-6" />
             </button>
-            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition">
-              <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#000"/><path d="M12 7v5l4 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </button>
-            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="w-6 h-6" />
+
+            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition" type="button" aria-label="Continue with Google">
+              <img src={GoogleIcon} alt="Google" className="w-6 h-6" />
             </button>
           </div>
 
