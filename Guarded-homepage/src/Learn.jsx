@@ -176,7 +176,7 @@ export default function Learn({ onBack }) {
             Explore Categories
           </h3>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Pick a category. The active card is highlighted; others fade behind it.
+            Pick a category to start learning.
           </p>
         </div>
 
