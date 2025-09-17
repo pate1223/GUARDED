@@ -262,26 +262,33 @@ export default function Learn({ onBack }) {
       </section>
 
 {/* Featured Learning Paths */}
-<section id="featured-paths" className="w-full bg-gray-50 py-20">
-  <div className="bg-[#5c52ff] text-white text-center py-4 rounded-full mb-10 max-w-5xl mx-auto">
-    <h3 className="text-2xl font-bold">
-      {categories[activeIndex].title} Learning Paths
-    </h3>
+<section id="featured-paths" className="w-full bg-gray-50 py-32">
+  <div className="flex justify-center mb-16">
+    <div className="bg-[#5c52ff] text-white px-12 py-4 rounded-full shadow-lg">
+      <h3 className="text-3xl font-bold">
+        {categories[activeIndex].title} Learning Paths
+      </h3>
+    </div>
   </div>
 
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto px-6">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 max-w-[90rem] mx-auto px-10">
     {learningPaths.map((path, idx) => (
       <div
         key={idx}
-        className="bg-white border-2 border-[#5c52ff] rounded-2xl p-6 shadow hover:shadow-lg transition flex flex-col items-center text-center"
+        className="bg-white border border-gray-200 rounded-3xl p-10 shadow-lg hover:shadow-2xl hover:border-[#5c52ff] transition flex flex-col min-h-[420px]"
       >
-        <h4 className="text-lg font-bold mb-2">{path.title}</h4>
-        <p className="text-sm text-gray-600 mb-4">{path.desc}</p>
-        <div className="text-6xl mb-4">{path.image}</div>
-        <div className="text-sm text-gray-700 mb-4">
+        <div className="w-20 h-20 mx-auto flex items-center justify-center rounded-full bg-[#f5f3ff] text-4xl mb-8">
+          {path.image || "🎯"}
+        </div>
+
+        <h4 className="text-xl font-bold text-gray-900 mb-3 text-center">{path.title}</h4>
+        <p className="text-base text-gray-600 mb-6 text-center flex-grow">{path.desc}</p>
+
+        <div className="text-sm text-gray-500 mb-8 text-center">
           {path.lessons} lessons • {path.level} • {path.time}
         </div>
-        <button className="px-5 py-2 border border-gray-800 rounded-full hover:bg-[#5c52ff] hover:text-white transition">
+
+        <button className="mt-auto px-6 py-3 bg-[#5c52ff] text-white rounded-full hover:bg-[#4335d1] transition">
           View Path
         </button>
       </div>
@@ -290,38 +297,38 @@ export default function Learn({ onBack }) {
 </section>
 
 {/* Courses Section */}
-<section
-  id="courses"
-  className="w-full bg-white pt-20 pb-40 overflow-visible"
->
-
-  <div className="bg-[#5c52ff] text-white text-center py-4 rounded-full mb-10 max-w-5xl mx-auto">
-    <h3 className="text-2xl font-bold">
-      {categories[activeIndex].title} Courses
-    </h3>
+<section id="courses" className="w-full bg-white py-32">
+  <div className="flex justify-center mb-16">
+    <div className="bg-[#5c52ff] text-white px-12 py-4 rounded-full shadow-lg">
+      <h3 className="text-3xl font-bold">
+        {categories[activeIndex].title} Courses
+      </h3>
+    </div>
   </div>
 
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-6">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 max-w-[90rem] mx-auto px-10">
     {courses.map((course, idx) => (
       <div
         key={idx}
-        className="bg-white border-2 border-[#5c52ff] rounded-2xl shadow hover:shadow-lg transition flex flex-col text-center overflow-hidden"
+        className="bg-white border border-gray-200 rounded-3xl shadow-lg hover:shadow-2xl hover:border-[#5c52ff] transition flex flex-col overflow-hidden min-h-[460px]"
       >
         <div
-          className="h-48 bg-cover bg-center"
+          className="h-56 bg-cover bg-center"
           style={{ backgroundImage: `url(${course.image})` }}
         />
-        <div className="p-6 flex flex-col flex-grow">
-          <h4 className="text-lg font-bold mb-2">{course.title}</h4>
-          <p className="text-sm text-gray-600 mb-4 flex-grow">{course.desc}</p>
-          <div className="text-sm text-gray-700 mb-4">
+
+        <div className="p-8 flex flex-col flex-grow">
+          <h4 className="text-xl font-bold text-gray-900 mb-3">{course.title}</h4>
+          <p className="text-base text-gray-600 mb-6 flex-grow">{course.desc}</p>
+          <div className="text-sm text-gray-500 mb-8">
             {course.level} • {course.time}
           </div>
-          <div className="flex justify-center gap-4">
-            <button className="px-4 py-2 border border-gray-800 rounded-full hover:bg-gray-800 hover:text-white transition">
+
+          <div className="flex justify-center gap-6 mt-auto">
+            <button className="px-5 py-2 border border-gray-400 rounded-full hover:bg-gray-100 transition">
               View Details
             </button>
-            <button className="px-4 py-2 bg-gradient-to-r from-[#6a5cff] to-[#5c52ff] text-white rounded-full hover:opacity-90 transition">
+            <button className="px-5 py-2 bg-gradient-to-r from-[#6a5cff] to-[#5c52ff] text-white rounded-full hover:opacity-90 transition">
               Start
             </button>
           </div>
@@ -330,6 +337,7 @@ export default function Learn({ onBack }) {
     ))}
   </div>
 </section>
+
 <footer className="w-full bg-[#5c52ff] text-white py-6">
   <p className="text-center text-sm md:text-base font-semibold">
     2025 GuardEd. All rights reserved
