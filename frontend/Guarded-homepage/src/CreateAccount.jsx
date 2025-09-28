@@ -3,6 +3,7 @@ import Logo from "./assets/logo.png";
 import Undraw from "./assets/undraw_surveillance_k6wl 1.png";
 import { signUpWithEmail, signInWithGoogle } from "./services/firebase";
 import { apiService } from "./services/api";
+import { signInWithFacebook } from "./services/firebase";
 
 export default function CreateAccount({ onBack, onGoToLogin, onCloseParent }) {
   const [name, setName] = useState("");
@@ -111,46 +112,81 @@ export default function CreateAccount({ onBack, onGoToLogin, onCloseParent }) {
     }
   };
 
-  return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-white">
-      <div className="w-[1100px] h-[650px] bg-white rounded-3xl shadow-2xl flex overflow-hidden">
-        {/* Left Illustration */}
-        <div className="w-1/2 bg-[#e6e3ff] flex flex-col justify-center items-center relative">
-          <button
-            type="button"
-            onClick={onBack}
-            className="absolute top-10 left-10 w-12 h-12 bg-white rounded-full shadow flex items-center justify-center hover:bg-purple-100 transition"
-            aria-label="Back"
-          >
-            <svg width="28" height="28" fill="none" stroke="#5c52ff" strokeWidth="3" viewBox="0 0 24 24">
-              <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
 
-          <div className="flex flex-col items-center mt-8">
-            {/* use same PNG asset as Login */}
-            <img
-              src={Undraw}
-              alt="Illustration"
-              className="w-[320px] h-auto object-contain mb-6"
-              style={{ filter: 'drop-shadow(0 12px 24px rgba(92,82,255,0.12))' }}
-            />
 
-            <div className="text-4xl font-handwritten text-[#44425a] text-center mb-8">
-              Every click matters.<br/>Learn to click smart.
-            </div>
+const handleFacebookSignIn = async () => {
+  setLoading(true);
+  setError("");
+
+  try {
+    const result = await signInWithFacebook();
+
+    if (result.success) {
+      const token = await result.user.getIdToken();
+      const verifyResult = await apiService.verifyUser(token);
+
+      if (verifyResult.success) {
+        localStorage.setItem("firebase_token", token);
+        console.log("Facebook login successful:", verifyResult.user);
+        window.location.href = "/dashboard";
+      } else {
+        setError("User not found in database. Please register first.");
+      }
+    } else {
+      setError(result.error);
+    }
+  } catch (error) {
+    setError("Facebook sign-in failed. Please try again.");
+    console.error("Facebook sign-in error:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  
+ return (
+  <div className="w-full min-h-screen flex items-center justify-center bg-white">
+    {/* Outer container now full-screen */}
+    <div className="w-full h-full min-h-screen bg-white flex flex-col md:flex-row overflow-hidden">
+      
+      {/* Left Illustration */}
+      <div className="w-full md:w-1/2 bg-[#e6e3ff] flex flex-col justify-center items-center relative p-6">
+        <button
+          type="button"
+          onClick={onBack}
+          className="absolute top-6 left-6 w-12 h-12 bg-white rounded-full shadow flex items-center justify-center hover:bg-purple-100 transition"
+          aria-label="Back"
+        >
+          <svg width="28" height="28" fill="none" stroke="#5c52ff" strokeWidth="3" viewBox="0 0 24 24">
+            <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
+        <div className="flex flex-col items-center">
+          <img
+            src={Undraw}
+            alt="Illustration"
+            className="w-[320px] max-w-full h-auto object-contain mb-6"
+            style={{ filter: 'drop-shadow(0 12px 24px rgba(92,82,255,0.12))' }}
+          />
+          <div className="text-4xl font-handwritten text-[#44425a] text-center mb-8 px-4">
+            Every click matters.<br />Learn to click smart.
           </div>
         </div>
+      </div>
 
-        {/* Right: Create Account Form */}
-        <div className="w-1/2 flex flex-col items-center justify-center bg-white px-8">
-          <div className="flex flex-col items-center mb-6">
-            <div className="w-20 h-20 rounded-full border-4 border-[#bcb6ff] flex items-center justify-center mb-4">
-              <img src={Logo} alt="GuardEd logo" className="w-12 h-12" />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center">Welcome to <span className="text-[#5c52ff]">GuardEd!</span></h2>
-            <div className="text-gray-400 text-lg mb-6 text-center">Sign up to continue</div>
+      {/* Right: Create Account Form */}
+      <div className="w-full md:w-1/2 flex flex-col items-center justify-center bg-white px-6 py-12 overflow-y-auto">
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-20 h-20 rounded-full border-4 border-[#bcb6ff] flex items-center justify-center mb-4">
+            <img src={Logo} alt="GuardEd logo" className="w-12 h-12" />
           </div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center">
+            Welcome to <span className="text-[#5c52ff]">GuardEd!</span>
+          </h2>
+          <div className="text-gray-400 text-lg mb-6 text-center">Sign up to continue</div>
+        </div>
 
           {error && (
             <div className="w-[80%] mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg">
@@ -235,28 +271,49 @@ export default function CreateAccount({ onBack, onGoToLogin, onCloseParent }) {
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
-          <div className="flex gap-4 mb-4">
-            <button 
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-              className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="w-6 h-6" />
-            </button>
-            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition">
-              <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#000"/><path d="M12 7v5l4 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </button>
-            <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2"><path d="M9 19c-5 0-9-3-9-7s4-7 9-7 9 3 9 7-4 7-9 7z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
-            </button>
-          </div>
+<div className="flex gap-4 mb-4">
+  {/* Google Sign-In */}
+  <button 
+    onClick={handleGoogleSignIn}
+    disabled={loading}
+    className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    {/* Google "G" Icon */}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 533.5 544.3" className="w-6 h-6">
+      <path fill="#4285F4" d="M533.5 278.4c0-17.4-1.6-34.1-4.6-50.4H272v95.5h147c-6.3 33.9-25.3 62.7-53.9 82.1l87.1 67.7c50.9-46.9 81.3-116 81.3-194.9z"/>
+      <path fill="#34A853" d="M272 544.3c72.7 0 133.7-24.1 178.2-65.1l-87.1-67.7c-24.1 16.2-55 25.7-91.1 25.7-69.9 0-129.2-47.2-150.5-110.7l-92.6 71.6c44.8 88.5 137 146.2 243.1 146.2z"/>
+      <path fill="#FBBC05" d="M121.5 326.5c-5.5-16.2-8.6-33.6-8.6-51.5s3.1-35.3 8.6-51.5l-92.6-71.6C10.2 192.9 0 233.3 0 275s10.2 82.1 28.9 122.1l92.6-71.6z"/>
+      <path fill="#EA4335" d="M272 107.7c39.6 0 75.1 13.6 103.1 40.4l77.4-77.4C405.7 24.1 344.7 0 272 0 166 0 73.8 57.7 28.9 153l92.6 71.6C142.8 154.9 202.1 107.7 272 107.7z"/>
+    </svg>
+  </button>
 
-          <div className="text-center text-gray-500 text-base">
-            Already have an account?{" "}
-            <button className="text-[#5c52ff] font-semibold hover:underline" type="button" onClick={onGoToLogin}>
-              Sign in
-            </button>
-          </div>
+{/* Facebook Sign-In */}
+<button 
+  onClick={handleFacebookSignIn}
+  disabled={loading}
+  className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {/* Facebook Icon */}
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" className="w-5 h-5" fill="#1877F2">
+    <path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 
+      12.42-50.06 52.24-50.06h40.42V6.26S293.48 0 
+      269.5 0c-73.06 0-121.5 44.38-121.5 
+      124.72v70.62H86.41V288h61.59v224h92.66V288z"/>
+  </svg>
+</button>
+
+
+  {/* Placeholder (e.g., Apple, LinkedIn, etc.) */}
+  <button 
+    disabled={loading}
+    className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    <span className="text-lg font-bold text-gray-400">?</span>
+  </button>
+</div>
+
+
+
         </div>
       </div>
     </div>

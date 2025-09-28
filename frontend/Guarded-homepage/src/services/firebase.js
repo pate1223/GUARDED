@@ -1,6 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-
+import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 // Firebase configuration will be fetched from backend
 let firebaseConfig = null;
 let app = null;
@@ -56,6 +55,20 @@ export const signInWithGoogle = async () => {
       success: false,
       error: error.message
     };
+  }
+};
+
+//facebook sign in
+export const signInWithFacebook = async () => {
+  const auth = getAuth();
+  const provider = new FacebookAuthProvider();
+
+  try {
+    const result = await signInWithPopup(auth, provider);
+    return { success: true, user: result.user };
+  } catch (error) {
+    console.error("Facebook login error:", error);
+    return { success: false, error: error.message };
   }
 };
 
