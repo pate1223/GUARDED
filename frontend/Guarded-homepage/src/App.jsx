@@ -13,8 +13,10 @@ import ThemeToggle from './ThemeToggle';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoadingSpinner from './components/LoadingSpinner';
 import Dashboard from './Dashboard';
+import AdminDashboard from './AdminDashboard';
+import FeedbackFab from './FeedbackFab';
 
-// Add translations for EN and FR
+// Translations for EN and FR
 const translations = {
   EN: {
     learn: "Learn",
@@ -36,7 +38,7 @@ const translations = {
   }
 };
 
-// i18n function for translation lookup
+// i18n function
 function i18n(lang, key) {
   return translations[lang][key] || key;
 }
@@ -48,12 +50,11 @@ function AppContent() {
   const [showMenu, setShowMenu] = useState(false);
   const { loading, error, isAuthenticated, user } = useAuth();
 
-  // Show loading spinner while Firebase initializes
+  // Firebase initialization states
   if (loading) {
     return <LoadingSpinner message="Initializing GuardEd..." />;
   }
 
-  // Show error if Firebase initialization failed
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -112,7 +113,7 @@ function AppContent() {
           </button>
         </nav>
 
-        {/* Sign in or User Menu */}
+        {/* Sign in / User Menu */}
         <div className="ml-8 relative">
           {!isAuthenticated ? (
             <button
@@ -146,6 +147,12 @@ function AppContent() {
                     }}
                   >
                     Profile
+                  </button>
+                  <button
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => { setView('admin'); setShowMenu(false); }}
+                  >
+                    Access Admin Dashboard
                   </button>
                   <button
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
@@ -203,9 +210,10 @@ function AppContent() {
       {view === 'quiz' && <Quiz />}
       {view === 'learn' && <Learn setView={setView} onBack={() => setView('home')} />}
       {view === 'home' && <Home i18n={i18n} lang={lang} />}
-      {view === 'dashboard' && <Dashboard />}
+      {view === 'dashboard' && <Dashboard setView={setView} />}
+      {view === 'admin' && <AdminDashboard />}
 
-      {/* Scams Pages */}
+      {/* Scam pages */}
       {view === 'online-scams' && <OnlineScams onBack={() => setView('learn')} />}
       {view === 'call-scams' && <CallScams onBack={() => setView('learn')} />}
       {view === 'email-scams' && <EmailScams onBack={() => setView('learn')} />}
@@ -219,6 +227,9 @@ function AppContent() {
       )}
 
       <div className="w-full h-24 bg-purple-100 absolute left-0 bottom-0 z-0"></div>
+
+      {/* Always-available Feedback button */}
+      <FeedbackFab />
     </div>
   );
 }

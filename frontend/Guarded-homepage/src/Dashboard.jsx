@@ -2,8 +2,8 @@ import React from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { signOutUser } from './services/firebase';
 
-export default function Dashboard() {
-  const { user, userInfo, isAuthenticated } = useAuth();
+export default function Dashboard({ setView }) {
+  const { user, userInfo, isAuthenticated, isAdmin } = useAuth();
 
   const handleSignOut = async () => {
     try {
@@ -83,9 +83,19 @@ export default function Dashboard() {
               <button className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
                 Learn More
               </button>
-              <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition" onClick={() => setView && setView('dashboard')}>
                 View Profile
               </button>
+
+              {/* Admin dashboard quick link - only visible to admins */}
+              {isAdmin && (
+                <button
+                  className="w-full px-4 py-2 bg-indigo-700 text-white rounded-lg hover:bg-indigo-800 transition"
+                  onClick={() => setView && setView('admin')}
+                >
+                  Click here to access admin dashboard
+                </button>
+              )}
             </div>
           </div>
         </div>
