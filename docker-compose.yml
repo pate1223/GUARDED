@@ -1,13 +1,13 @@
 services:
   api: 
     build: ./backend
-    container_name: guarded_backend
+    container_name: guarded_api
     ports:
       - '3000:3000'
     env_file: './backend/.env'
   ui:
     build: ./frontend
-    container_name: guarded_frontend
+    container_name: guarded_ui
     ports: 
-      - '3001:3001'
+      - '8080:80'
     env_file: './frontend/.env'

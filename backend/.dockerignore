@@ -17,3 +17,4 @@ coverage
 /build
 /dist
 !package.json
+env.example

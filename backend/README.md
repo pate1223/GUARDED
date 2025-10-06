@@ -1,4 +1,6 @@
-# GuardED Backend - Authentication & RBAC System
+# GuardED Backend
+
+# Authentication & RBAC System
 
 A comprehensive Node.js backend with Firebase authentication and Role-Based Access Control (RBAC) for the GuardED educational platform.
 
@@ -360,4 +362,3 @@ For support and questions:
 ---
 
 **⚠️ Important**: This is a production-ready authentication system. Always test thoroughly in development before deploying to production.
-
