@@ -3,6 +3,8 @@ import Logo from './assets/logo.png';
 import { useAuth } from './contexts/AuthContext';
 import FeedbackList from './FeedbackList';
 import QuizEditor from './QuizEditor';
+import UsersList from './UsersList';
+
 
 export default function AdminDashboard() {
   const { user } = useAuth() || {};
@@ -190,9 +192,9 @@ export default function AdminDashboard() {
         )}
 
         {active === 'users' && (
-          /* placeholder for users view */
-          <div className="bg-white rounded-xl p-6 shadow">Users view (to implement)</div>
-        )}
+  <UsersList />
+)}
+
       </main>
     </div>
   );
