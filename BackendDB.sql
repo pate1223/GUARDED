@@ -24,7 +24,8 @@ CREATE TABLE users (
     firebase_uid VARCHAR(255) NOT NULL,
     email VARCHAR(255),
     role ENUM('guest', 'user', 'admin') NOT NULL DEFAULT 'guest',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 );
 
 ALTER TABLE users ADD UNIQUE (firebase_uid);
@@ -41,7 +42,7 @@ CREATE TABLE quizzes (
     is_active BOOLEAN DEFAULT TRUE,
     created_by INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_category (category),
     INDEX idx_difficulty (difficulty),
