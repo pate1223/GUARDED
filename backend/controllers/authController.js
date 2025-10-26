@@ -268,7 +268,7 @@ exports.verifyToken = async (req, res) => {
 exports.registerUser = async (req, res) => {
   try {
     console.log('Registration request body:', req.body);
-    const { firebase_uid, email, role } = req.body;
+    const { firebase_uid, email, role, name } = req.body;
 
     // Validate required fields
     if (!firebase_uid || !email || !role) {
@@ -288,8 +288,8 @@ exports.registerUser = async (req, res) => {
       });
     }
 
-    // Create or update user (UPSERT)
-    const newUser = await User.createOrUpdateUser(firebase_uid, email, role);
+    
+    const newUser = await User.createOrUpdateUser(firebase_uid, email, role, name);
 
     res.status(201).json({
       success: true,
@@ -297,9 +297,10 @@ exports.registerUser = async (req, res) => {
       user: {
         id: newUser.id,
         firebase_uid: newUser.firebase_uid,
+        name: newUser.name,             // ✅ Include name
         email: newUser.email,
         role: newUser.role,
-        created_at: newUser.created_at,
+        created_at: newUser.created_at, // ✅ Include created timestamp
         updated_at: newUser.updated_at
       }
     });
