@@ -36,17 +36,7 @@ app.use(helmet({
 // app.use(limiter);
 
 // CORS configuration for React development (localhost only)
-app.use(cors({
-  origin: [
-    'http://localhost:3000',     // Backend
-    'http://localhost:3001',     // React dev server (common port)
-    'http://localhost:5173',     // Vite dev server
-    'http://localhost:8080'      // Alternative React port
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+//app.use(cors());
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -114,7 +104,7 @@ app.get('/health', (req, res) => {
 // Configuration endpoint for frontend
 app.get('/api/config', (req, res) => {
   res.json({
-    apiUrl: 'http://localhost:3000',
+    apiUrl: process.env.GUARDED_API_URL,
     firebaseConfig: {
       apiKey: process.env.FIREBASE_WEB_API_KEY,
       authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -187,9 +177,9 @@ const startServer = async () => {
     // Start Express server
     app.listen(PORT, () => {
       console.log(`🚀 GuardED Backend server running on port ${PORT}`);
-      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV}`);
       console.log(`🔐 Authentication: Firebase + MySQL RBAC`);
-      console.log(`🌐 CORS enabled for: ${process.env.ALLOWED_ORIGINS || 'localhost:3000,3001'}`);
+      //console.log(`🌐 CORS enabled for: ${process.env.ALLOWED_ORIGINS}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);

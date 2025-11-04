@@ -1,4 +1,4 @@
-FROM node:lts-alpine AS builder
+FROM node:alpine AS builder
 
 WORKDIR /app
 
@@ -12,7 +12,10 @@ RUN npm run build
 
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/nginx.conf /etc/nginx/conf.d
 
-EXPOSE 80
+EXPOSE 3001
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT [ "nginx" ]
+
+CMD [ "-g", "daemon off;"]
