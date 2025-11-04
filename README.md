@@ -2,19 +2,20 @@
 
 ## 🚀 Quick Setup
 
-### 1. Install Dependencies
+### LOCAL DEV SETUP 
+#### 1. Install Dependencies
 ```bash
 cd frontend/
 npm install
 ```
 
-### 2. Create Environment File
+#### 2. Create Environment File
 Create a `.env` file in `frontend/` with:
 ```env
 VITE_API_URL=http://localhost:3000
 ```
 
-### 3. Start Development Servers
+#### 3. Start Development Servers
 
 **Terminal 1 (Backend):**
 ```bash
@@ -28,9 +29,33 @@ cd frontend/Guarded-homepage
 npm run dev
 ```
 
-### 4. Access the Application
+#### 4. Access the Application
 - **Frontend**: http://localhost:3001
 - **Backend API**: http://localhost:3000
+
+
+
+
+
+### DOCKER DEV SETUP
+Make sure you have Docker and Docker Compose installed. 
+
+#### 1. Set up .env.staging file for frontend:
+```env
+VITE_API_URL=http://localhost:30000
+```
+
+#### 2. Set up .env.staging file for backend:
+Copy env.example, rename to .env.staging. Use the ALLOWED_ORIGINS for Docker specified in the file. Fill in the rest of the values as expected.
+
+#### 3. Run docker compose
+```shell
+docker compose --env-file ./frontend/.env.staging up --build
+```
+
+#### 4. Access the application
+- **Frontend**: http://localhost:30001
+- **Backend API**: http://localhost:30000
 
 ## 🔧 Troubleshooting
 
