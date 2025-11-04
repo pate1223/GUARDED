@@ -159,6 +159,33 @@ export const apiService = {
     }
   },
 
+  // Create a new user (admin)
+createUser: async (userData) => {
+  try {
+    const response = await api.post('/api/users/register', userData);
+    return { success: true, data: response.data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message
+    };
+  }
+},
+
+// Delete a user by ID (admin only)
+deleteUser: async (userId) => {
+  try {
+    const response = await api.delete(`/api/admin/users/${userId}`);
+    return { success: true, data: response.data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message
+    };
+  }
+},
+
+
   // Feedback API methods
 submitFeedback: async (feedbackData) => {
   try {
