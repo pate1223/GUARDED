@@ -18,16 +18,10 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS.split(",");
 
 const corsOptions = {
-  origin: [ 
-    "http://localhost:3000",
-    "http://guarded-api:3000",
-    "http://localhost:3001",
-    "http://guarded-ui:3001",
-    "http://guarded-api:30000",
-    "http://guarded-ui:30001"
-   ],
+  origin: ALLOWED_ORIGINS,
   credentials: true,
   methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
   allowedHeaders: [ 'Content-Type', 'Authorization' ]

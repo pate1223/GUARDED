@@ -13,7 +13,7 @@ export const initializeFirebase = async () => {
     }
 
     // Fetch Firebase config from backend
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/config`);
+    const response = await fetch(`${VITE_API_URL}/api/config`);
     const config = await response.json();
     
     firebaseConfig = config.firebaseConfig;
