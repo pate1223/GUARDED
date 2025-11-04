@@ -19,6 +19,22 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const corsOptions = {
+  origin: [ 
+    "http://localhost:3000",
+    "http://guarded-api:3000",
+    "http://localhost:3001",
+    "http://guarded-ui:3001",
+    "http://guarded-api:30000",
+    "http://guarded-ui:30001"
+   ],
+  credentials: true,
+  methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
+  allowedHeaders: [ 'Content-Type', 'Authorization' ]
+};
+
+app.use(cors(corsOptions));
+
 // Security middleware with CSP configuration (temporarily disabled for Google OAuth testing)
 app.use(helmet({
   contentSecurityPolicy: false
@@ -179,7 +195,6 @@ const startServer = async () => {
       console.log(`🚀 GuardED Backend server running on port ${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV}`);
       console.log(`🔐 Authentication: Firebase + MySQL RBAC`);
-      //console.log(`🌐 CORS enabled for: ${process.env.ALLOWED_ORIGINS}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);
