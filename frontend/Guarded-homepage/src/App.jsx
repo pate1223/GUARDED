@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Logo from './assets/logo.png';
 import WhyItMatters from './WhyItMatters';
 import TypesOfScams from './TypesOfScams';
-import Quiz from './Quiz';
+import QuizDashboard from './components/QuizDashboard';
 import Home from './Home';
 import SignIn from './SignIn';
 import Learn from './Learn';
@@ -16,7 +16,7 @@ import Dashboard from './Dashboard';
 import AdminDashboard from './AdminDashboard';
 import FeedbackFab from './FeedbackFab';
 
-// Translations for EN and FR
+// Add translations for EN and FR
 const translations = {
   EN: {
     learn: "Learn",
@@ -38,7 +38,7 @@ const translations = {
   }
 };
 
-// i18n function
+// i18n function for translation lookup
 function i18n(lang, key) {
   return translations[lang][key] || key;
 }
@@ -48,13 +48,14 @@ function AppContent() {
   const [view, setView] = useState('home');
   const [showLang, setShowLang] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const { loading, error, isAuthenticated, user } = useAuth();
+  const { loading, error, isAuthenticated, user, userInfo, isAdmin } = useAuth();
 
-  // Firebase initialization states
+  // Show loading spinner while Firebase initializes
   if (loading) {
     return <LoadingSpinner message="Initializing GuardEd..." />;
   }
 
+  // Show error if Firebase initialization failed
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -113,7 +114,7 @@ function AppContent() {
           </button>
         </nav>
 
-        {/* Sign in / User Menu */}
+        {/* Sign in or User Menu */}
         <div className="ml-8 relative">
           {!isAuthenticated ? (
             <button
@@ -130,43 +131,48 @@ function AppContent() {
                 type="button"
                 onClick={() => setShowMenu(!showMenu)}
               >
-                {user?.email ? user.email[0].toUpperCase() : "U"}
+                {(userInfo?.user_id || user?.displayName || user?.email || "U")[0].toUpperCase()}
               </button>
 
               {showMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border rounded-lg shadow-lg py-2 z-50">
-                  <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                    Signed in as <br />
-                    <span className="font-semibold">{user?.email}</span>
+                  <div className="absolute right-0 mt-2 w-56 bg-white border rounded-lg shadow-lg py-2 z-50">
+                    <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                      Signed in as <br />
+                      <span className="font-semibold">
+                        {userInfo?.user_id || user?.displayName || user?.email || 'User'}
+                      </span>
+                    </div>
+                    <button
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => {
+                        setView('dashboard');
+                        setShowMenu(false);
+                      }}
+                    >
+                      Profile
+                    </button>
+                    {/* Admin dashboard link - only visible to admin users */}
+                    {isAdmin && (
+                      <button
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => { setView('admin'); setShowMenu(false); }}
+                      >
+                        Access Admin Dashboard
+                      </button>
+                    )}
+                    <button
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+                      onClick={async () => {
+                        const { signOutUser } = await import("./services/firebase");
+                        await signOutUser();
+                        setView("home");
+                        setShowMenu(false);
+                      }}
+                    >
+                      Log out
+                    </button>
                   </div>
-                  <button
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => {
-                      setView('dashboard');
-                      setShowMenu(false);
-                    }}
-                  >
-                    Profile
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => { setView('admin'); setShowMenu(false); }}
-                  >
-                    Access Admin Dashboard
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
-                    onClick={async () => {
-                      const { signOutUser } = await import("./services/firebase");
-                      await signOutUser();
-                      setView("home");
-                      setShowMenu(false);
-                    }}
-                  >
-                    Log out
-                  </button>
-                </div>
-              )}
+                )}
             </div>
           )}
         </div>
@@ -207,13 +213,13 @@ function AppContent() {
       </div>
 
       {/* Main content */}
-      {view === 'quiz' && <Quiz />}
+      {view === 'quiz' && <QuizDashboard />}
       {view === 'learn' && <Learn setView={setView} onBack={() => setView('home')} />}
       {view === 'home' && <Home i18n={i18n} lang={lang} />}
-      {view === 'dashboard' && <Dashboard setView={setView} />}
-      {view === 'admin' && <AdminDashboard />}
+  {view === 'dashboard' && <Dashboard setView={setView} />}
+  {view === 'admin' && <AdminDashboard />}
 
-      {/* Scam pages */}
+      {/* Scams Pages */}
       {view === 'online-scams' && <OnlineScams onBack={() => setView('learn')} />}
       {view === 'call-scams' && <CallScams onBack={() => setView('learn')} />}
       {view === 'email-scams' && <EmailScams onBack={() => setView('learn')} />}
@@ -228,7 +234,7 @@ function AppContent() {
 
       <div className="w-full h-24 bg-purple-100 absolute left-0 bottom-0 z-0"></div>
 
-      {/* Always-available Feedback button */}
+      {/* place the feedback FAB so it's always available */}
       <FeedbackFab />
     </div>
   );
