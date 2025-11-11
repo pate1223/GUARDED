@@ -1,14 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { initializeFirebase, onAuthStateChanged, getCurrentUser } from '../services/firebase';
+import { initializeFirebase, onAuthStateChanged } from '../services/firebase';
 import { apiService } from '../services/api';
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
 
@@ -19,52 +17,79 @@ export const AuthProvider = ({ children }) => {
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState(null);
 
-  // Initialize Firebase and set up auth state listener
   useEffect(() => {
+    let unsubscribe;
+
     const initAuth = async () => {
       try {
         await initializeFirebase();
         setInitialized(true);
-        
-        // Listen to auth state changes
-        const unsubscribe = onAuthStateChanged(async (firebaseUser) => {
+
+        // Attach listener for Firebase auth state changes
+        unsubscribe = onAuthStateChanged(async (firebaseUser) => {
           if (firebaseUser) {
             setUser(firebaseUser);
-            
-            // Get user info from backend
             try {
-              const token = await firebaseUser.getIdToken();
+              // Refresh ID token
+              const token = await firebaseUser.getIdToken(true);
               localStorage.setItem('firebase_token', token);
-              
+              console.log('🔑 Firebase token refreshed:', token.substring(0, 20) + '...');
+
+              // Verify user on backend
               const result = await apiService.verifyUser(token);
-              if (result.success) {
+              console.log('✅ User verification result:', result);
+
+              if (result.success && result.user) {
                 setUserInfo(result.user);
               } else {
-                console.error('Failed to verify user:', result.error);
+                console.warn('⚠️ Backend verification failed:', result.error);
                 setUserInfo(null);
               }
-            } catch (error) {
-              console.error('Error getting user info:', error);
+            } catch (err) {
+              console.error('❌ Error fetching user info:', err);
               setUserInfo(null);
             }
           } else {
+            // Handle sign-out or guest state
             setUser(null);
             setUserInfo(null);
             localStorage.removeItem('firebase_token');
           }
+
           setLoading(false);
         });
-
-        return unsubscribe;
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-        setError(error.message);
+      } catch (err) {
+        console.error('🔥 Auth initialization error:', err);
+        setError(err.message);
         setLoading(false);
       }
     };
 
     initAuth();
+
+    // Cleanup on unmount
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
+
+  // Derived roles
+  const isAdmin = userInfo?.role === 'admin';
+  const isUser = userInfo?.role === 'user';
+  const isGuest = userInfo?.role === 'guest';
+  const isAuthenticated = !!user;
+
+  // Helpful logging (remove or toggle for production)
+  useEffect(() => {
+    console.log('🧭 AuthContext:', {
+      email: user?.email,
+      role: userInfo?.role,
+      isAuthenticated,
+      isAdmin,
+      isUser,
+      isGuest,
+    });
+  }, [user, userInfo]);
 
   const value = {
     user,
@@ -72,15 +97,11 @@ export const AuthProvider = ({ children }) => {
     loading,
     initialized,
     error,
-    isAuthenticated: !!user,
-    isAdmin: userInfo?.role === 'admin',
-    isUser: userInfo?.role === 'user',
-    isGuest: userInfo?.role === 'guest'
+    isAuthenticated,
+    isAdmin,
+    isUser,
+    isGuest,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

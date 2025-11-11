@@ -6,7 +6,7 @@ import { signInWithEmail, signInWithGoogle } from "./services/firebase";
 import { apiService } from "./services/api";
   import { signInWithFacebook } from "./services/firebase"; 
 
-export default function Login({ onBack, onCloseParent }) {
+export default function Login({ onBack, onCloseParent, onGoToSignUp }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -276,6 +276,19 @@ return (
     </svg>
   </button>
 </div>
+
+          <div className="text-center mt-6">
+            <span className="text-gray-600">
+              Don't have an account?{' '}
+              <button 
+                type="button"
+                onClick={onGoToSignUp}
+                className="text-[#5c52ff] underline hover:text-[#4335d1] transition"
+              >
+                Sign up
+              </button>
+            </span>
+          </div>
 
 
 

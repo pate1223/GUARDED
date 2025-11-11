@@ -29,79 +29,60 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Security middleware with CSP configuration (temporarily disabled for Google OAuth testing)
-app.use(helmet({
-  contentSecurityPolicy: false
-}));
+/**
+ * 🛡 Security and Middleware
+ */
 
-// Rate limiting (disabled for development)
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 1000, // limit each IP to 1000 requests per windowMs (increased for development)
-//   message: {
-//     error: 'Too many requests',
-//     message: 'Please try again later'
-//   }
-// });
-// app.use(limiter);
+// Helmet security headers (CSP disabled temporarily for Google OAuth)
+app.use(helmet({ contentSecurityPolicy: false }));
 
-// CORS configuration for React development (localhost only)
-//app.use(cors());
-
-// Body parsing middleware
+// Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Note: Static files are now served by React dev server
-// app.use(express.static('public'));
-
-// Request throttling middleware (relaxed for development)
+/**
+ * 🚦 Request Logging + Throttling (relaxed for dev)
+ */
 const requestTimes = new Map();
 const THROTTLE_WINDOW = 10000; // 10 seconds
-const MAX_REQUESTS_PER_WINDOW = 50; // Increased for development
+const MAX_REQUESTS_PER_WINDOW = 50; // dev relaxed
 
 app.use((req, res, next) => {
   const timestamp = new Date().toISOString();
   const clientId = req.ip;
   const now = Date.now();
-  
-  // Skip throttling for critical endpoints and quiz endpoints
-  if (req.path === '/api/config' || 
-      req.path === '/health' || 
-      req.path.startsWith('/api/quizzes') ||
-      req.path.startsWith('/api/users')) {
-    console.log(`[${timestamp}] ${req.method} ${req.path} - ${req.ip} - User-Agent: ${req.get('User-Agent')?.substring(0, 50)}...`);
+
+  // Skip throttle for important endpoints
+  if (
+    req.path === '/api/config' ||
+    req.path === '/health' ||
+    req.path.startsWith('/api/quizzes') ||
+    req.path.startsWith('/api/users')
+  ) {
+    console.log(`[${timestamp}] ${req.method} ${req.path} - ${req.ip}`);
     return next();
   }
-  
-  // Clean old entries
-  if (requestTimes.has(clientId)) {
-    const times = requestTimes.get(clientId).filter(time => now - time < THROTTLE_WINDOW);
-    requestTimes.set(clientId, times);
-  } else {
-    requestTimes.set(clientId, []);
-  }
-  
-  // Check if client is making too many requests
-  const clientRequests = requestTimes.get(clientId);
-  if (clientRequests.length >= MAX_REQUESTS_PER_WINDOW) {
-    console.log(`🚫 Throttling client ${clientId} - too many requests`);
+
+  const times = (requestTimes.get(clientId) || []).filter(t => now - t < THROTTLE_WINDOW);
+  times.push(now);
+  requestTimes.set(clientId, times);
+
+  if (times.length > MAX_REQUESTS_PER_WINDOW) {
+    console.log(`🚫 Throttling client ${clientId}`);
     return res.status(429).json({
       error: 'Too many requests',
       message: 'Please slow down your requests',
       retryAfter: Math.ceil(THROTTLE_WINDOW / 1000)
     });
   }
-  
-  // Record this request
-  clientRequests.push(now);
-  requestTimes.set(clientId, clientRequests);
-  
-  console.log(`[${timestamp}] ${req.method} ${req.path} - ${req.ip} - User-Agent: ${req.get('User-Agent')?.substring(0, 50)}...`);
+
+  console.log(`[${timestamp}] ${req.method} ${req.path} - ${req.ip}`);
   next();
 });
 
-// Health check endpoint
+/**
+ * 💓 Health + Config Endpoints
+ */
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
@@ -111,10 +92,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Configuration endpoint for frontend
 app.get('/api/config', (req, res) => {
   res.json({
-    apiUrl: process.env.GUARDED_API_URL,
+    apiUrl: process.env.GUARDED_API_URL || 'http://localhost:3000',
     firebaseConfig: {
       apiKey: process.env.FIREBASE_WEB_API_KEY,
       authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -126,13 +106,17 @@ app.get('/api/config', (req, res) => {
   });
 });
 
-// API routes
+/**
+ * 🧩 API Routes
+ */
 app.use('/api/users', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/feedback', feedbackRoutes);
 
-// Root endpoint
+/**
+ * 🏠 Root + 404 Routes
+ */
 app.get('/', (req, res) => {
   res.json({
     message: 'GuardED Backend API',
@@ -148,7 +132,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 handler for undefined routes
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Route not found',
@@ -162,10 +145,14 @@ app.use('*', (req, res) => {
   });
 });
 
-// Global error handling middleware
+/**
+ * 🧱 Global Error Handling
+ */
 app.use(errorHandler);
 
-// Graceful shutdown handling
+/**
+ * 📴 Graceful Shutdown
+ */
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
   process.exit(0);
@@ -176,15 +163,15 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-// Start server
+/**
+ * 🚀 Start Server
+ */
 const startServer = async () => {
   try {
-    // Test database connection
     const connection = await db.getConnection();
     console.log('✅ MySQL DB connected successfully!');
     connection.release();
 
-    // Start Express server
     app.listen(PORT, () => {
       console.log(`🚀 GuardED Backend server running on port ${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV}`);

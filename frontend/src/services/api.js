@@ -1,277 +1,95 @@
 import axios from 'axios';
 
-// Create axios instance with base configuration
+// Axios instance configuration
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor to add auth token
+// ✅ Request interceptor – attach Firebase auth token
 api.interceptors.request.use(
   (config) => {
-    // Add any auth token if available
     const token = localStorage.getItem('firebase_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('🔐 Auth token attached:', token.substring(0, 20) + '...');
+    } else {
+      console.log('⚠️ No auth token found in localStorage');
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
+// ✅ Response interceptor – central error handling
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
-    console.error('API Error:', error.response?.data || error.message);
+    console.error('❌ API Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
 
-// API methods
-export const apiService = {
-  // User registration
-  registerUser: async (userData) => {
-    try {
-      const response = await api.post('/api/users/register', userData);
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Get user profile
-  getUserProfile: async (token) => {
-    try {
-      const response = await api.get('/api/users/profile', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Verify user in database
-  verifyUser: async (token) => {
-    try {
-      const response = await api.get('/api/users/profile', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      return {
-        success: true,
-        user: response.data.user
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Get Firebase config
-  getFirebaseConfig: async () => {
-    try {
-      const response = await api.get('/api/config');
-      return {
-        success: true,
-        config: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Health check
-  healthCheck: async () => {
-    try {
-      const response = await api.get('/health');
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Quiz methods
-  getQuizzes: async () => {
-    try {
-      const response = await api.get('/api/quizzes');
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-    // Get all users (Admin only)
-  getAllUsers: async () => {
-    try {
-      const response = await api.get('/api/admin/users');
-
-      return {
-        success: true,
-        data: response.data.users || response.data
-      };
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Create a new user (admin)
-createUser: async (userData) => {
+// ✅ Helper to normalize API responses
+const handleRequest = async (fn) => {
   try {
-    const response = await api.post('/api/users/register', userData);
+    const response = await fn();
     return { success: true, data: response.data };
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message
+      error: error.response?.data?.message || error.message,
     };
-  }
-},
-
-// Delete a user by ID (admin only)
-deleteUser: async (userId) => {
-  try {
-    const response = await api.delete(`/api/admin/users/${userId}`);
-    return { success: true, data: response.data };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.response?.data?.message || error.message
-    };
-  }
-},
-
-
-  // Feedback API methods
-submitFeedback: async (feedbackData) => {
-  try {
-    const response = await api.post('/api/feedback', feedbackData);
-    return { success: true, data: response.data };
-  } catch (error) {
-    console.error('Submit feedback error:', error);
-    return { success: false, error: error.response?.data?.message || error.message };
-  }
-},
-
-getAllFeedback: async () => {
-  try {
-    const response = await api.get('/api/feedback');
-    return { success: true, data: response.data.feedback };
-  } catch (error) {
-    console.error('Get feedback error:', error);
-    return { success: false, error: error.response?.data?.message || error.message };
-  }
-},
-
-// Fetch all feedback (Admin only)
-getAllFeedback: async () => {
-  try {
-    const response = await api.get('/api/feedback');
-    return { success: true, data: response.data.feedback || response.data };
-  } catch (error) {
-    console.error('Error fetching feedback:', error);
-    return {
-      success: false,
-      error: error.response?.data?.message || error.message
-    };
-  }
-},
-
-
-
-  getQuiz: async (quizId) => {
-    try {
-      const response = await api.get(`/api/quizzes/${quizId}`);
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  submitQuiz: async (quizId, answers, timeTaken) => {
-    try {
-      const response = await api.post(`/api/quizzes/${quizId}/submit`, {
-        answers,
-        timeTaken
-      });
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  getUserProgress: async () => {
-    try {
-      const response = await api.get('/api/quizzes/progress/user');
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
   }
 };
 
+// ✅ Unified API Service
+export const apiService = {
+  // 🔹 AUTH & USER
+  registerUser: (data) => handleRequest(() => api.post('/api/users/register', data)),
+  getUserProfile: (token) =>
+    handleRequest(() =>
+      api.get('/api/users/profile', { headers: { Authorization: `Bearer ${token}` } })
+    ),
+  verifyUser: (token) =>
+    handleRequest(() =>
+      api.get('/api/users/profile', { headers: { Authorization: `Bearer ${token}` } })
+    ),
 
+  // 🔹 CONFIG
+  getFirebaseConfig: () => handleRequest(() => api.get('/api/config')),
+  healthCheck: () => handleRequest(() => api.get('/health')),
+
+  // 🔹 QUIZZES
+  getQuizzes: () => handleRequest(() => api.get('/api/quizzes')),
+  getQuiz: (quizId) => handleRequest(() => api.get(`/api/quizzes/${quizId}`)),
+
+  submitQuiz: async (quizId, answers, timeTaken) => {
+    try {
+      console.log('🧠 Submitting quiz:', { quizId, answers, timeTaken });
+      const response = await api.post(`/api/quizzes/${quizId}/submit`, { answers, timeTaken });
+      console.log('✅ Quiz submitted:', response.data);
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error('❌ Quiz submission error:', error);
+      return { success: false, error: error.response?.data?.message || error.message };
+    }
+  },
+
+  getUserProgress: () => handleRequest(() => api.get('/api/quizzes/progress/user')),
+  resetQuizProgress: (quizId) => handleRequest(() => api.delete(`/api/quizzes/${quizId}/progress`)),
+  getQuizHistory: (quizId) => handleRequest(() => api.get(`/api/quizzes/${quizId}/history`)),
+  getUserAchievements: () => handleRequest(() => api.get('/api/quizzes/achievements/user')),
+
+  // 🔹 ADMIN
+  getAllUsers: () => handleRequest(() => api.get('/api/admin/users')),
+  createUser: (data) => handleRequest(() => api.post('/api/users/register', data)),
+  deleteUser: (userId) => handleRequest(() => api.delete(`/api/admin/users/${userId}`)),
+
+  // 🔹 FEEDBACK
+  submitFeedback: (data) => handleRequest(() => api.post('/api/feedback', data)),
+  getAllFeedback: () => handleRequest(() => api.get('/api/feedback')),
+};
 
 export default api;
