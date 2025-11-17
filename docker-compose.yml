@@ -9,6 +9,7 @@ services:
     build:
       context: ./frontend
     container_name: guarded-ui
+    env_file: './frontend/.env.staging'
     ports: 
       - '30001:3001'
     depends_on:
