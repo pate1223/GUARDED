@@ -50,7 +50,7 @@ Copy env.example, rename to .env.staging. Use the ALLOWED_ORIGINS for Docker spe
 
 #### 3. Run docker compose
 ```shell
-docker compose --env-file ./frontend/.env.staging up --build
+docker compose up --build
 ```
 
 #### 4. Access the application
