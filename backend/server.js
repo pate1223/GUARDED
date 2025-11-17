@@ -23,22 +23,19 @@ const PORT = process.env.PORT || 3000;
  * 🛡 Security and Middleware
  */
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
+  allowedHeaders: [ 'Content-Type', 'Authorization' ],
+  debug: true
+}));
+
+
 // Helmet security headers (CSP disabled temporarily for Google OAuth)
 app.use(helmet({ contentSecurityPolicy: false }));
-
-// CORS for local development
-app.use(cors({
-  origin: [
-    'http://localhost:3000', // Backend
-    'http://localhost:3001', // React dev
-    'http://localhost:3002', // Alt Vite dev
-    'http://localhost:5173', // Vite dev
-    'http://localhost:8080'  // Alternate React port
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
@@ -98,7 +95,7 @@ app.get('/health', (req, res) => {
 
 app.get('/api/config', (req, res) => {
   res.json({
-    apiUrl: process.env.API_URL || 'http://localhost:3000',
+    apiUrl: process.env.GUARDED_API_URL || 'http://localhost:3000',
     firebaseConfig: {
       apiKey: process.env.FIREBASE_WEB_API_KEY,
       authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -106,7 +103,8 @@ app.get('/api/config', (req, res) => {
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
       messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
       appId: process.env.FIREBASE_APP_ID
-    }
+    },
+    allowedOrigins: allowedOrigins
   });
 });
 
@@ -177,10 +175,10 @@ const startServer = async () => {
     connection.release();
 
     app.listen(PORT, () => {
-      console.log(`🚀 GuardED Backend running on port ${PORT}`);
-      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🔐 Auth: Firebase + MySQL RBAC`);
-      console.log(`🌐 CORS enabled for localhost dev ports`);
+      console.log(`🚀 GuardED Backend server running on port ${PORT}`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV}`);
+      console.log(`🔐 Authentication: Firebase + MySQL RBAC`);
+      console.log(`CORS Origins: ${process.env.ALLOWED_ORIGINS}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);

@@ -1,0 +1,16 @@
+server {
+    listen  3001;
+    root    /usr/share/nginx/html;
+    index   index.html;
+    etag    on;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+        add_header 'Content-Security-Policy' 'upgrade-insecure-requests';
+        add_header 'Access-Control-Allow-Origin' 'https://guarded.graknet.ca' always;
+    }
+
+    location /api/ { 
+        proxy_pass ${VITE_API_URL};
+    }
+}
