@@ -8,11 +8,8 @@ services:
   ui:
     build:
       context: ./frontend
-      args:
-        - VITE_API_URL=${VITE_API_URL}
     container_name: guarded-ui
     ports: 
       - '30001:3001'
-    env_file: './frontend/.env.staging'
     depends_on:
       - api

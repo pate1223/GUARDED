@@ -18,16 +18,30 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS.split(",");
+
+const allowedOrigins = ['http://localhost:3001','http://localhost:30001','http://guarded-ui:3001','http://guarded-ui:30001','https://guarded.graknet.ca'];
 
 const corsOptions = {
-  origin: ALLOWED_ORIGINS,
+  origin: [ "http://localhost:3001","http://localhost:30001","http://guarded-ui:3001","http://guarded-ui:30001","https://guarded.graknet.ca" ],
   credentials: true,
   methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
   allowedHeaders: [ 'x-requested-with','Content-Type','origin','authorization','accept','client-sent-security-token' ]
 };
 
-app.use(cors(corsOptions));
+//app.use(cors(corsOptions));
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if(allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
+  allowedHeaders: [ 'x-requested-with', 'Content-Type', 'origin', 'authorization', 'accept', 'client-sent-security-token' ]
+}));
 
 /**
  * 🛡 Security and Middleware

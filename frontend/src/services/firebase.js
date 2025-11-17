@@ -22,7 +22,7 @@ export const initializeFirebase = async () => {
     if (app && auth) return { app, auth };
 
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/config`
+      `${import.meta.env.VITE_API_URL}/api/config`
     );
     const config = await response.json();
     firebaseConfig = config.firebaseConfig;
