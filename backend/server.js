@@ -19,33 +19,20 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const allowedOrigins = ['http://localhost:3001','http://localhost:30001','http://guarded-ui:3001','http://guarded-ui:30001','https://guarded.graknet.ca'];
-
-const corsOptions = {
-  origin: [ "http://localhost:3001","http://localhost:30001","http://guarded-ui:3001","http://guarded-ui:30001","https://guarded.graknet.ca" ],
-  credentials: true,
-  methods: [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
-  allowedHeaders: [ 'x-requested-with','Content-Type','origin','authorization','accept','client-sent-security-token' ]
-};
-
-//app.use(cors(corsOptions));
-
-app.use(cors({
-  origin: function(origin, callback) {
-    if(allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
-  allowedHeaders: [ 'x-requested-with', 'Content-Type', 'origin', 'authorization', 'accept', 'client-sent-security-token' ]
-}));
-
 /**
  * 🛡 Security and Middleware
  */
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
+  allowedHeaders: [ 'Content-Type', 'Authorization' ],
+  debug: true
+}));
+
 
 // Helmet security headers (CSP disabled temporarily for Google OAuth)
 app.use(helmet({ contentSecurityPolicy: false }));
@@ -116,7 +103,8 @@ app.get('/api/config', (req, res) => {
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
       messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
       appId: process.env.FIREBASE_APP_ID
-    }
+    },
+    allowedOrigins: allowedOrigins
   });
 });
 
@@ -190,6 +178,7 @@ const startServer = async () => {
       console.log(`🚀 GuardED Backend server running on port ${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV}`);
       console.log(`🔐 Authentication: Firebase + MySQL RBAC`);
+      console.log(`CORS Origins: ${process.env.ALLOWED_ORIGINS}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);
