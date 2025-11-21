@@ -21,9 +21,7 @@ export const initializeFirebase = async () => {
   try {
     if (app && auth) return { app, auth };
 
-    const response = await fetch(
-      `${window._env_.API_URL}/api/config`
-    );
+    const response = await fetch('/api/config');
     const config = await response.json();
     firebaseConfig = config.firebaseConfig;
 

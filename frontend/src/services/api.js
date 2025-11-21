@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Axios instance configuration
 const api = axios.create({
-  baseURL: window._env_.API_URL,
+  baseURL: '/api/',
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -47,23 +47,23 @@ const handleRequest = async (fn) => {
 // ✅ Unified API Service
 export const apiService = {
   // 🔹 AUTH & USER
-  registerUser: (data) => handleRequest(() => api.post('/api/users/register', data)),
+  registerUser: (data) => handleRequest(() => api.post('/users/register', data)),
   getUserProfile: (token) =>
     handleRequest(() =>
-      api.get('/api/users/profile', { headers: { Authorization: `Bearer ${token}` } })
+      api.get('/users/profile', { headers: { Authorization: `Bearer ${token}` } })
     ),
   verifyUser: (token) =>
     handleRequest(() =>
-      api.get('/api/users/profile', { headers: { Authorization: `Bearer ${token}` } })
+      api.get('/users/profile', { headers: { Authorization: `Bearer ${token}` } })
     ),
 
   // 🔹 CONFIG
-  getFirebaseConfig: () => handleRequest(() => api.get('/api/config')),
+  getFirebaseConfig: () => handleRequest(() => api.get('/config')),
   healthCheck: () => handleRequest(() => api.get('/health')),
 
   // 🔹 QUIZZES
-  getQuizzes: () => handleRequest(() => api.get('/api/quizzes')),
-  getQuiz: (quizId) => handleRequest(() => api.get(`/api/quizzes/${quizId}`)),
+  getQuizzes: () => handleRequest(() => api.get('/quizzes')),
+  getQuiz: (quizId) => handleRequest(() => api.get(`/quizzes/${quizId}`)),
 
   submitQuiz: async (quizId, answers, timeTaken) => {
     try {
@@ -77,19 +77,19 @@ export const apiService = {
     }
   },
 
-  getUserProgress: () => handleRequest(() => api.get('/api/quizzes/progress/user')),
-  resetQuizProgress: (quizId) => handleRequest(() => api.delete(`/api/quizzes/${quizId}/progress`)),
-  getQuizHistory: (quizId) => handleRequest(() => api.get(`/api/quizzes/${quizId}/history`)),
-  getUserAchievements: () => handleRequest(() => api.get('/api/quizzes/achievements/user')),
+  getUserProgress: () => handleRequest(() => api.get('/quizzes/progress/user')),
+  resetQuizProgress: (quizId) => handleRequest(() => api.delete(`/quizzes/${quizId}/progress`)),
+  getQuizHistory: (quizId) => handleRequest(() => api.get(`/quizzes/${quizId}/history`)),
+  getUserAchievements: () => handleRequest(() => api.get('/quizzes/achievements/user')),
 
   // 🔹 ADMIN
-  getAllUsers: () => handleRequest(() => api.get('/api/admin/users')),
-  createUser: (data) => handleRequest(() => api.post('/api/users/register', data)),
-  deleteUser: (userId) => handleRequest(() => api.delete(`/api/admin/users/${userId}`)),
+  getAllUsers: () => handleRequest(() => api.get('/admin/users')),
+  createUser: (data) => handleRequest(() => api.post('/users/register', data)),
+  deleteUser: (userId) => handleRequest(() => api.delete(`/admin/users/${userId}`)),
 
   // 🔹 FEEDBACK
-  submitFeedback: (data) => handleRequest(() => api.post('/api/feedback', data)),
-  getAllFeedback: () => handleRequest(() => api.get('/api/feedback')),
+  submitFeedback: (data) => handleRequest(() => api.post('/feedback', data)),
+  getAllFeedback: () => handleRequest(() => api.get('/feedback')),
 };
 
 export default api;

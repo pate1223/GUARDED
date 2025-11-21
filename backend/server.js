@@ -23,15 +23,17 @@ const PORT = process.env.PORT || 3000;
  * 🛡 Security and Middleware
  */
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
+const allowedOrigins = '*';
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
-  allowedHeaders: [ 'Content-Type', 'Authorization' ],
-  debug: true
-}));
+// app.use(cors({
+//   origin: ['*'],
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS' ],
+//   allowedHeaders: [ 'Content-Type', 'Authorization' ],
+//   debug: true
+// }));
+
+app.use(cors());
 
 
 // Helmet security headers (CSP disabled temporarily for Google OAuth)
@@ -104,7 +106,7 @@ app.get('/api/config', (req, res) => {
       messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
       appId: process.env.FIREBASE_APP_ID
     },
-    allowedOrigins: allowedOrigins
+    //allowedOrigins: allowedOrigins
   });
 });
 
@@ -178,7 +180,7 @@ const startServer = async () => {
       console.log(`🚀 GuardED Backend server running on port ${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV}`);
       console.log(`🔐 Authentication: Firebase + MySQL RBAC`);
-      console.log(`CORS Origins: ${process.env.ALLOWED_ORIGINS}`);
+      //console.log(`CORS Origins: ${process.env.ALLOWED_ORIGINS}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);
