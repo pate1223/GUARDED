@@ -1,17 +1,28 @@
 import React, { useState, useEffect } from "react";
-import Quiz from "./components/Quiz"; // use your real Quiz component
-import QuizResults from "./components/QuizResults"; // use your real QuizResults component
+import Quiz from "./components/Quiz";
+import QuizResults from "./components/QuizResults"; 
 import { apiService } from "./services/api";
 import { useAuth } from "./contexts/AuthContext";
 
-// Quiz card UI
-function QuizCard({ quiz, onSelect, isCompleted, progress, onRetake, onViewResults, isRetaking }) {
+/* -------------------------------------------------------------------------- */
+/*                               QUIZ CARD UI                                 */
+/* -------------------------------------------------------------------------- */
+
+function QuizCard({
+  quiz,
+  onSelect,
+  onRetake,
+  onViewResults,
+  isCompleted,
+  isRetaking,
+  progress,
+  lang,
+  i18n
+}) {
   return (
-    <div
-      key={quiz.id}
-      className="relative bg-white rounded-3xl shadow-xl w-72 min-h-[370px] flex flex-col items-center pt-8 pb-6 px-6 transition-all group hover:shadow-2xl"
-    >
-      {/* Status badge */}
+    <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-xl w-72 min-h-[370px] flex flex-col items-center pt-8 pb-6 px-6 transition-all duration-300 hover:shadow-2xl">
+
+      {/* STATUS BADGE */}
       <div
         className={`absolute left-6 top-6 px-4 py-1 rounded-tl-2xl rounded-br-2xl text-xs font-bold ${
           isRetaking
@@ -21,10 +32,14 @@ function QuizCard({ quiz, onSelect, isCompleted, progress, onRetake, onViewResul
             : "bg-[#5c52ff] text-white"
         }`}
       >
-        {isRetaking ? "🔄 Retake" : isCompleted ? "✔ Completed" : "✨ New"}
+        {isRetaking
+          ? i18n(lang, "retakeBadge")
+          : isCompleted
+          ? i18n(lang, "completedBadge")
+          : i18n(lang, "newBadge")}
       </div>
 
-      {/* Icon */}
+      {/* ICON */}
       <div
         className={`w-32 h-32 rounded-2xl flex items-center justify-center mb-6 mt-6 shadow-lg ${
           isRetaking
@@ -39,8 +54,8 @@ function QuizCard({ quiz, onSelect, isCompleted, progress, onRetake, onViewResul
             cx="32"
             cy="32"
             r="28"
-            fill={isRetaking ? "#fff" : isCompleted ? "#e5e5e5" : "#fff"}
-            stroke={isRetaking ? "#ea580c" : isCompleted ? "#aaa" : "#5c52ff"}
+            fill={isCompleted ? "#e5e5e5" : "#fff"}
+            stroke={isCompleted ? "#aaa" : "#fff"}
             strokeWidth="4"
           />
           <text
@@ -48,51 +63,53 @@ function QuizCard({ quiz, onSelect, isCompleted, progress, onRetake, onViewResul
             y="40"
             textAnchor="middle"
             fontSize="32"
-            fill={isRetaking ? "#ea580c" : isCompleted ? "#aaa" : "#5c52ff"}
+            fill={isCompleted ? "#aaa" : "#fff"}
           >
             ★
           </text>
         </svg>
       </div>
 
-      {/* Titles */}
+      {/* TITLE */}
       <div className="text-center mb-2">
         <div
           className={`text-base font-bold ${
-            isRetaking 
-              ? "text-orange-600" 
-              : isCompleted ? "text-gray-400" : "text-[#5c52ff]"
+            isRetaking ? "text-orange-600" : isCompleted ? "text-gray-400" : "text-[#5c52ff]"
           }`}
         >
           {quiz.category || "Quiz"}
         </div>
+
         <div
           className={`text-2xl font-extrabold ${
-            isRetaking 
-              ? "text-orange-600" 
-              : isCompleted ? "text-gray-400" : "text-[#5c52ff]"
+            isRetaking ? "text-orange-600" : isCompleted ? "text-gray-400" : "text-[#5c52ff]"
           }`}
         >
           {quiz.title}
         </div>
-        <div className="text-xs text-gray-400 mt-1">{quiz.description}</div>
+
+        <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+          {quiz.description}
+        </div>
       </div>
 
-      {/* Progress (if completed) */}
+      {/* PROGRESS (completed quizzes) */}
       {isCompleted && progress && (
-        <div className="w-full mt-4 text-sm text-gray-600 space-y-1">
+        <div className="w-full mt-4 text-sm text-gray-700 dark:text-gray-300 space-y-1">
           <div className="flex justify-between">
-            <span>Score:</span>
+            <span>{i18n(lang, "score")}:</span>
             <span className="font-semibold">
               {progress.score}/{progress.max_score}
             </span>
           </div>
+
           <div className="flex justify-between">
-            <span>Percentage:</span>
+            <span>{i18n(lang, "percentage")}:</span>
             <span className="font-semibold">{progress.percentage}%</span>
           </div>
+
           <div className="flex justify-between">
-            <span>Completed:</span>
+            <span>{i18n(lang, "completedOn")}:</span>
             <span className="font-semibold">
               {new Date(progress.completed_at).toLocaleDateString()}
             </span>
@@ -100,210 +117,159 @@ function QuizCard({ quiz, onSelect, isCompleted, progress, onRetake, onViewResul
         </div>
       )}
 
-      {/* Start button */}
-      {(!isCompleted || isRetaking) && (
-        <button
-          onClick={() => onSelect(quiz)}
-          className={`mt-6 w-full py-3 rounded-xl font-bold text-lg shadow text-white hover:opacity-90 ${
-            isRetaking 
-              ? "bg-gradient-to-br from-orange-500 to-red-500" 
-              : "bg-gradient-to-br from-[#6a5cff] to-[#5c52ff]"
-          }`}
-        >
-          {isRetaking ? "🔄 Start Retake" : "Start"}
-        </button>
-      )}
+      {/* START / RETAKE BUTTON */}
+      <button
+        onClick={() => onSelect(quiz)}
+        className={`mt-6 w-full py-3 rounded-xl font-bold text-lg shadow text-white ${
+          isRetaking
+            ? "bg-gradient-to-br from-orange-500 to-red-500"
+            : "bg-gradient-to-br from-[#6a5cff] to-[#5c52ff]"
+        } hover:opacity-90`}
+      >
+        {isRetaking ? i18n(lang, "startRetake") : i18n(lang, "startQuiz")}
+      </button>
 
-       {/* Action buttons for completed quizzes (only when not retaking) */}
-       {isCompleted && !isRetaking && (
-         <div className="mt-6 w-full space-y-3">
-           <button
-             onClick={(e) => {
-               e.stopPropagation();
-               onViewResults(quiz.id);
-             }}
-             className="w-full py-2 rounded-xl font-semibold text-sm shadow bg-gradient-to-br from-[#6a5cff] to-[#5c52ff] text-white hover:opacity-90"
-           >
-             📊 View Results
-           </button>
-           {onRetake && (
-             <button
-               onClick={(e) => {
-                 e.stopPropagation();
-                 console.log('QuizCard: Retake button clicked, quiz object:', quiz);
-                 console.log('QuizCard: Quiz ID being passed:', quiz.id, 'Type:', typeof quiz.id);
-                 onRetake(quiz.id);
-               }}
-               className="w-full py-2 rounded-xl font-semibold text-sm shadow bg-gradient-to-br from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 transition-all duration-300"
-             >
-               🔄 Retake Quiz
-             </button>
-           )}
-         </div>
-       )}
+      {/* RESULT + RETAKE ACTIONS */}
+      {isCompleted && !isRetaking && (
+        <div className="w-full mt-4 space-y-3">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewResults(quiz.id);
+            }}
+            className="w-full py-2 rounded-xl bg-[#5c52ff] text-white shadow hover:bg-[#4335d1]"
+          >
+            📊 {i18n(lang, "viewResults")}
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onRetake(quiz.id);
+            }}
+            className="w-full py-2 rounded-xl bg-orange-500 text-white shadow hover:bg-orange-600"
+          >
+            🔄 {i18n(lang, "retakeQuiz")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-// Main page
-export default function QuizPage() {
+/* -------------------------------------------------------------------------- */
+/*                                MAIN PAGE                                   */
+/* -------------------------------------------------------------------------- */
+
+export default function QuizPage({ lang, i18n }) {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
-  const [quizzes, setQuizzes] = useState([]);
-  const [userProgress, setUserProgress] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [quizResults, setQuizResults] = useState(null);
   const [retakingQuizId, setRetakingQuizId] = useState(null);
+
+  const [quizzes, setQuizzes] = useState([]);
+  const [userProgress, setUserProgress] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
   const { isAuthenticated } = useAuth();
+
+  /* ---------------------------- LOAD QUIZZES ---------------------------- */
 
   useEffect(() => {
     fetchQuizzes();
-    if (isAuthenticated) {
-      fetchUserProgress();
-    } else {
-      setLoading(false);
-    }
+    if (isAuthenticated) fetchUserProgress();
+    else setLoading(false);
   }, [isAuthenticated]);
 
-const fetchQuizzes = async () => {
-  try {
-    const result = await apiService.getQuizzes();
-    if (result.success) {
-      // Backend returns { success: true, quizzes: [...] }
-      const quizArray = result.data.quizzes || [];
-      console.log('Fetched quizzes:', quizArray);
-      setQuizzes(quizArray);
-    } else {
-      console.error('Failed to fetch quizzes:', result.error);
+  const fetchQuizzes = async () => {
+    try {
+      const result = await apiService.getQuizzes();
+
+      const list = result?.data?.quizzes || result?.data || [];
+      setQuizzes(list);
+    } catch (e) {
+      console.error("Failed quizzes:", e);
       setQuizzes([]);
     }
-  } catch (error) {
-    console.error("Error fetching quizzes:", error);
-    setQuizzes([]);
-  }
-};
-
+  };
 
   const fetchUserProgress = async () => {
     try {
       const result = await apiService.getUserProgress();
-      if (result.success) {
-        // Use currentProgress from the new API structure
-        setUserProgress(result.data.data.currentProgress || []);
-      }
-    } catch (error) {
-      console.error("Error fetching user progress:", error);
+      setUserProgress(result?.data?.data?.currentProgress || []);
+    } catch (e) {
+      console.error("Failed progress:", e);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchQuizResults = async (quizId) => {
-    try {
-      console.log('Fetching quiz results for quizId:', quizId);
-      
-      const result = await apiService.getQuizHistory(quizId);
-      console.log('Quiz history result:', result);
-      
-      if (result.success && result.data.data.length > 0) {
-        // Get the latest attempt (first in the array since it's sorted by attempt_number DESC)
-        const latestAttempt = result.data.data[0];
-        console.log('Latest attempt:', latestAttempt);
-        
-        // Fetch the quiz data to get questions
-        const quizResult = await apiService.getQuiz(quizId);
-        console.log('Quiz data result:', quizResult);
-        
-        if (quizResult.success) {
-          const combinedData = {
-            quiz: quizResult.data.quiz,
-            results: latestAttempt
-          };
-          console.log('Combined data for QuizResults:', combinedData);
-          return combinedData;
-        }
-      }
-      return null;
-    } catch (error) {
-      console.error("Error fetching quiz results:", error);
-      return null;
-    }
-  };
+  /* ---------------------------- LOAD QUIZ QUESTIONS ---------------------------- */
 
   const handleQuizSelect = async (quiz) => {
     try {
       setLoading(true);
+
       const result = await apiService.getQuiz(quiz.id);
-      if (result.success) {
-        setSelectedQuiz(result.data.quiz);
-        // Clear retaking state when starting a quiz
-        setRetakingQuizId(null);
-      } else {
-        alert(result.error || "Failed to load quiz");
-      }
-    } catch (error) {
-      console.error("Error loading quiz:", error);
-      alert("Failed to load quiz. Please try again.");
+      setSelectedQuiz(result.data.quiz);
+
+      setRetakingQuizId(null);
+    } catch (e) {
+      alert("Failed to load quiz.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuizComplete = () => {
+  /* ---------------------------- QUIZ COMPLETION ---------------------------- */
+
+  const handleQuizComplete = async () => {
     setSelectedQuiz(null);
     setRetakingQuizId(null);
-    if (isAuthenticated) {
-      fetchUserProgress();
-    }
+
+    if (isAuthenticated) fetchUserProgress();
   };
 
-  const handleViewResults = async (quizId) => {
-    if (!isAuthenticated) {
-      alert('Please sign in to view quiz results.');
-      return;
-    }
+  /* ---------------------------- RESULTS VIEWER ---------------------------- */
 
+  const handleViewResults = async (quizId) => {
     try {
       setLoading(true);
-      const resultsData = await fetchQuizResults(quizId);
-      if (resultsData) {
-        setQuizResults(resultsData);
-      } else {
-        alert('No results found for this quiz.');
+
+      const history = await apiService.getQuizHistory(quizId);
+
+      if (!history.success || history.data.data.length === 0) {
+        alert("No results found.");
+        return;
       }
-    } catch (error) {
-      console.error('Error loading quiz results:', error);
-      alert('Failed to load quiz results. Please try again.');
+
+      const latestAttempt = history.data.data[0];
+
+      const quizData = await apiService.getQuiz(quizId);
+
+      setQuizResults({
+        quiz: quizData.data.quiz,
+        results: latestAttempt
+      });
+    } catch (e) {
+      alert("Failed to load results.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuizRetake = async (quizId) => {
-    if (!isAuthenticated) {
-      alert('Please sign in to retake quizzes.');
-      return;
-    }
+  /* ---------------------------- RETAKE FLOW ---------------------------- */
 
-    const confirmed = window.confirm('Are you sure you want to retake this quiz? Your previous attempts will be preserved in your history.');
-    if (!confirmed) return;
-
-    try {
-      console.log('Retaking quiz:', quizId, 'Type:', typeof quizId);
-      
-      // Set the quiz as being retaken - this will change the UI
-      setRetakingQuizId(quizId);
-      
-      // Don't load the quiz immediately - let the user click "Start Retake" button
-    } catch (error) {
-      console.error('Error setting up quiz retake:', error);
-      alert('Failed to prepare quiz retake. Please try again.');
-    }
+  const handleRetake = (quizId) => {
+    setRetakingQuizId(quizId);
   };
+
+  /* ---------------------------- CONDITIONAL SCREEN RENDER ---------------------------- */
 
   if (loading) {
     return (
-      <div className="w-full min-h-screen flex items-center justify-center bg-[#f3f2fd]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5c52ff]"></div>
+      <div className="w-full min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin h-12 w-12 rounded-full border-b-2 border-[#5c52ff]"></div>
       </div>
     );
   }
@@ -314,6 +280,8 @@ const fetchQuizzes = async () => {
         quiz={quizResults.quiz}
         results={quizResults.results}
         onBack={() => setQuizResults(null)}
+        lang={lang}
+        i18n={i18n}
       />
     );
   }
@@ -324,51 +292,42 @@ const fetchQuizzes = async () => {
         quiz={selectedQuiz}
         onComplete={handleQuizComplete}
         onBack={() => setSelectedQuiz(null)}
+        lang={lang}
+        i18n={i18n}
       />
     );
   }
 
-  // Match completed progress with quizzes and merge all quizzes
-  const completedIds = userProgress.map((p) => p.quiz_id);
-  const allQuizzes = quizzes.map((quiz) => ({
-    ...quiz,
-    isCompleted: completedIds.includes(quiz.id),
-    progress: userProgress.find((p) => p.quiz_id === quiz.id),
-  }));
+  /* ---------------------------- MERGED QUIZ LIST ---------------------------- */
 
-  console.log('Debug - Quizzes:', quizzes);
-  console.log('Debug - User Progress:', userProgress);
-  console.log('Debug - Completed IDs:', completedIds);
-  console.log('Debug - All Quizzes:', allQuizzes);
+  const completedIds = userProgress.map((p) => p.quiz_id);
+
+  const allQuizzes = quizzes.map((q) => ({
+    ...q,
+    isCompleted: completedIds.includes(q.id),
+    progress: userProgress.find((p) => p.quiz_id === q.id)
+  }));
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Browse Quizzes */}
-      <section className="w-full px-8 mb-24">
-        <h2 className="text-2xl font-bold text-[#5c52ff] mb-8 text-center">
-          Browse Quizzes
-        </h2>
-        {allQuizzes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 justify-items-center">
-            {allQuizzes.map((quiz) => (
-              <QuizCard
-                key={quiz.id}
-                quiz={quiz}
-                onSelect={handleQuizSelect}
-                isCompleted={quiz.isCompleted}
-                progress={quiz.progress}
-                onRetake={quiz.isCompleted ? handleQuizRetake : null}
-                onViewResults={quiz.isCompleted ? handleViewResults : null}
-                isRetaking={retakingQuizId === quiz.id}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-gray-500 italic">
-            No quizzes available right now.
-          </p>
-        )}
-      </section>
+      <h2 className="text-3xl font-bold text-[#5c52ff] my-10">{i18n(lang, "browseQuizzes")}</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+        {allQuizzes.map((quiz) => (
+          <QuizCard
+            key={quiz.id}
+            quiz={quiz}
+            lang={lang}
+            i18n={i18n}
+            isCompleted={quiz.isCompleted}
+            progress={quiz.progress}
+            isRetaking={retakingQuizId === quiz.id}
+            onSelect={handleQuizSelect}
+            onRetake={quiz.isCompleted ? handleRetake : null}
+            onViewResults={quiz.isCompleted ? handleViewResults : null}
+          />
+        ))}
+      </div>
     </div>
   );
 }

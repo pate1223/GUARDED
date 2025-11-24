@@ -95,9 +95,9 @@ export default function FeedbackList() {
               <th className="py-3 px-3 w-10">#</th>
               <th className="py-3 px-3 w-36">USER</th>
               <th className="py-3 px-3 w-32 text-center">RATING</th>
-              <th className="py-3 px-3 w-[220px]">LIKES</th>
-              <th className="py-3 px-3 w-[220px]">IMPROVEMENTS</th>
-              <th className="py-3 px-3 w-[220px]">OTHER COMMENTS</th>
+              <th className="py-3 px-3 min-w-[300px] max-w-[400px]">LIKES</th>
+              <th className="py-3 px-3 min-w-[300px] max-w-[400px]">IMPROVEMENTS</th>
+              <th className="py-3 px-3 min-w-[300px] max-w-[400px]">OTHER COMMENTS</th>
               <th className="py-3 px-3 w-32">CREATED ON</th>
             </tr>
           </thead>

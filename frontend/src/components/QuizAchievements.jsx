@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 export default function QuizAchievements({ results, quiz, onClose }) {
   const [showCelebration, setShowCelebration] = useState(false);
-  const [currentAchievement, setCurrentAchievement] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowCelebration(true), 500);
@@ -96,10 +95,10 @@ export default function QuizAchievements({ results, quiz, onClose }) {
 
   const getRarityColor = (rarity) => {
     switch (rarity) {
-      case 'legendary': return 'border-yellow-400 shadow-yellow-200';
-      case 'epic': return 'border-purple-400 shadow-purple-200';
-      case 'rare': return 'border-blue-400 shadow-blue-200';
-      default: return 'border-green-400 shadow-green-200';
+      case 'legendary': return 'border-yellow-400 dark:border-yellow-500 shadow-yellow-200 dark:shadow-yellow-900/50';
+      case 'epic': return 'border-purple-400 dark:border-purple-500 shadow-purple-200 dark:shadow-purple-900/50';
+      case 'rare': return 'border-blue-400 dark:border-blue-500 shadow-blue-200 dark:shadow-blue-900/50';
+      default: return 'border-green-400 dark:border-green-500 shadow-green-200 dark:shadow-green-900/50';
     }
   };
 
@@ -108,14 +107,14 @@ export default function QuizAchievements({ results, quiz, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4 transition-opacity duration-300">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl dark:shadow-purple-500/30 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700 transition-colors duration-300">
         <div className="p-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="text-6xl mb-4">🎉</div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Achievements Unlocked!</h2>
-            <p className="text-gray-600">You've earned {achievements.length} achievement{achievements.length !== 1 ? 's' : ''}!</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-purple-300 mb-2 transition-colors duration-300">Achievements Unlocked!</h2>
+            <p className="text-gray-600 dark:text-gray-400 transition-colors duration-300">You've earned {achievements.length} achievement{achievements.length !== 1 ? 's' : ''}!</p>
           </div>
 
           {/* Achievements List */}
@@ -143,24 +142,24 @@ export default function QuizAchievements({ results, quiz, onClose }) {
           </div>
 
           {/* Stats Summary */}
-          <div className="bg-gray-50 rounded-xl p-6 mb-8">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Your Performance</h3>
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-6 mb-8 transition-colors duration-300">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-purple-300 mb-4 transition-colors duration-300">Your Performance</h3>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <div className="text-2xl font-bold text-purple-600">{results.percentage}%</div>
-                <div className="text-sm text-gray-600">Score</div>
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 transition-colors duration-300">{results.percentage}%</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">Score</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 transition-colors duration-300">
                   {Math.floor(results.timeTaken / 60)}:{(results.timeTaken % 60).toString().padStart(2, '0')}
                 </div>
-                <div className="text-sm text-gray-600">Time</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">Time</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400 transition-colors duration-300">
                   {results.results.filter(r => r.isCorrect).length}/{results.results.length}
                 </div>
-                <div className="text-sm text-gray-600">Correct</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">Correct</div>
               </div>
             </div>
           </div>
@@ -169,7 +168,7 @@ export default function QuizAchievements({ results, quiz, onClose }) {
           <div className="text-center">
             <button
               onClick={onClose}
-              className="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl font-semibold hover:from-purple-600 hover:to-blue-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 dark:from-purple-600 dark:to-blue-600 text-white rounded-xl font-semibold hover:from-purple-600 hover:to-blue-600 dark:hover:from-purple-700 dark:hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl dark:shadow-purple-500/30"
             >
               🎉 View My Results
             </button>

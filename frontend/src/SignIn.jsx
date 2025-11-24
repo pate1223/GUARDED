@@ -5,13 +5,13 @@ import Login from "./Login";
 import CreateAccount from "./CreateAccount";
 import Undraw from "./assets/undraw_surveillance_k6wl 1.png";
 
-export default function SignIn({ onBack }) {
+export default function SignIn({ onBack, lang, i18n }) {
   const [showLogin, setShowLogin] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
 
   // when showLogin is true, render the full Login page
   if (showLogin) {
-    return <Login onBack={() => setShowLogin(false)} onCloseParent={onBack} />;
+    return <Login onBack={() => setShowLogin(false)} onCloseParent={onBack} lang={lang} i18n={i18n} />;
   }
 
   if (showCreate) {
@@ -20,6 +20,8 @@ export default function SignIn({ onBack }) {
         onBack={() => setShowCreate(false)}
         onGoToLogin={() => { setShowCreate(false); setShowLogin(true); }}
         onCloseParent={onBack}
+        lang={lang}
+        i18n={i18n}
       />
     );
   }
@@ -53,7 +55,7 @@ export default function SignIn({ onBack }) {
             </div>
 
             <div className="text-4xl font-handwritten text-[#44425a] text-center mb-8">
-              Every click matters.<br/>Learn to click smart.
+              {i18n(lang, 'everyClickMatters')}<br/>{i18n(lang, 'learnClickSmart')}
             </div>
           </div>
         </div>
@@ -61,19 +63,19 @@ export default function SignIn({ onBack }) {
         {/* Right Side */}
         <div className="w-1/2 flex flex-col items-center justify-center bg-white">
           <img src={Logo} alt="GuardEd logo" className="w-24 h-24 mb-6" />
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">Welcome to <span className="text-[#5c52ff]">GuardEd!</span></h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-8">{i18n(lang, 'welcomeToGuardEd')} <span className="text-[#5c52ff]">GuardEd!</span></h2>
           <div className="w-[80%] flex flex-col gap-6">
             <button
               className="w-full py-5 rounded-full border border-[#e6e3ff] text-[#5c52ff] text-xl font-semibold bg-white hover:bg-[#e6e3ff] transition"
               onClick={() => setShowLogin(true)}
             >
-              Login
+              {i18n(lang, 'login')}
             </button>
             <button
               className="w-full py-5 rounded-full border border-[#e6e3ff] text-[#5c52ff] text-xl font-semibold bg-white hover:bg-[#e6e3ff] transition"
               onClick={() => setShowCreate(true)}
             >
-              Create Account
+              {i18n(lang, 'createAccount')}
             </button>
           </div>
         </div>
