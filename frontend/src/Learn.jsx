@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-//import { getDirectedLearningModules, getCategoryContent } from "./utils/learnContent";
+import { getDirectedLearningModules, getCategoryContent } from "./utils/learnContent";
 
 // Define view constants
 const VIEWS = {
