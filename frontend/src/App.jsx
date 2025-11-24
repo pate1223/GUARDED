@@ -757,7 +757,7 @@ function AppContent() {
   }
 
   return (
-    <div className="relative w-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center border-none p-0 m-0 transition-colors duration-300">
+<div className="relative w-full bg-white text-black min-h-screen flex flex-col border-none p-0 m-0">
       {/* Skip to main content link for accessibility */}
       <a
         href="#main-content"
@@ -767,7 +767,7 @@ function AppContent() {
       </a>
 
       {/* Top bar */}
-      <header className="fixed top-6 z-50 w-[900px] left-1/2 -translate-x-1/2 flex items-center px-10 py-5 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-full transition-all duration-300" role="banner">
+<header className="fixed top-6 z-50 w-full max-w-5xl left-1/2 -translate-x-1/2 flex items-center px-8 py-5 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border border-gray-200/50 dark:border-gray-700/50 rounded-full transition-all duration-300">
         <div className="flex items-center mr-8">
           <div className="w-16 h-16 bg-white dark:bg-gray-700 border border-purple-200 dark:border-purple-500/50 rounded-full flex items-center justify-center transition-colors duration-300 shadow-sm dark:shadow-purple-500/20">
             <img src={Logo} alt="GuardED Logo - Security awareness platform" className="w-10 h-10" />
