@@ -61,7 +61,7 @@ html, body, #root {
 .dark .text-gray-500 { color: #9ca3af !important; }
 
 /* primary button color adapt */
-.dark .bg-\[#5c52ff\] { background-color: var(--primary) !important; }
+.dark .bg-\[\#5c52ff\] { background-color: var(--primary) !important; }
 .dark .hover\:bg-\[\#4335d1\]:hover { background-color: var(--primary-600) !important; }
 
 /* small tweak for left panel background colour in dark */
