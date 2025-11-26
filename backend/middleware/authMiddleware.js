@@ -3,21 +3,23 @@ const User = require('../models/User');
 
 /**
  * Firebase Authentication Middleware
- * Verifies Firebase ID token, detects role, and syncs user with MySQL
+ * Verifies Firebase ID token and syncs user with MySQL database
  */
 module.exports = async function (req, res, next) {
   try {
+    // Check for authorization header
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
+      return res.status(401).json({ 
         error: 'No token provided',
         message: 'Authorization header must start with Bearer'
       });
     }
 
+    // Extract token
     const idToken = authHeader.split(' ')[1];
     if (!idToken) {
-      return res.status(401).json({
+      return res.status(401).json({ 
         error: 'Invalid token format',
         message: 'Token must be provided after Bearer'
       });
@@ -29,96 +31,80 @@ module.exports = async function (req, res, next) {
       decodedToken = await admin.auth().verifyIdToken(idToken);
     } catch (firebaseError) {
       console.error('Firebase token verification failed:', firebaseError.message);
-
-      const errorResponses = {
-        'auth/id-token-expired': { error: 'Token expired', message: 'Please refresh your authentication token' },
-        'auth/id-token-revoked': { error: 'Token revoked', message: 'Your session has been revoked. Please sign in again.' }
-      };
-
-      if (errorResponses[firebaseError.code]) {
-        return res.status(401).json(errorResponses[firebaseError.code]);
+      
+      if (firebaseError.code === 'auth/id-token-expired') {
+        return res.status(401).json({ 
+          error: 'Token expired',
+          message: 'Please refresh your authentication token'
+        });
+      } else if (firebaseError.code === 'auth/id-token-revoked') {
+        return res.status(401).json({ 
+          error: 'Token revoked',
+          message: 'Your session has been revoked. Please sign in again.'
+        });
+      } else {
+        return res.status(401).json({ 
+          error: 'Invalid token',
+          message: 'Authentication token is invalid or corrupted'
+        });
       }
-      return res.status(401).json({
-        error: 'Invalid token',
-        message: 'Authentication token is invalid or corrupted'
-      });
     }
 
+    // Check if user is anonymous (guest)
     const isAnonymous = decodedToken.provider_id === 'anonymous';
+    
+    // Determine role based on Firebase auth
+    let role = 'user';
+    if (isAnonymous) {
+      role = 'guest';
+    }
 
-    // Admin emails list (customize as needed)
-    const adminEmails = [
-      'sajwanaayush12@gmail.com',
-      'qwerty@gmail.com'
-      // add more admin emails here
-    ];
-
-    // Extract and validate user info
-    let { uid, email } = decodedToken;
+    // Extract user information
+    const { uid, email } = decodedToken;
+    
+    // Get full user record from Firebase to access displayName
     let displayName = null;
-
     try {
       const userRecord = await admin.auth().getUser(uid);
       displayName = userRecord.displayName || null;
-      if (!email && userRecord.email) email = userRecord.email;
-      console.log('Firebase displayName:', displayName);
-      console.log('Firebase email:', email || 'N/A');
-    } catch (err) {
-      console.warn('Could not fetch user record from Firebase:', err.message);
+    } catch (error) {
+      // Continue without displayName
     }
-
-    // Determine role
-    let role = 'user';
-    if (isAnonymous) role = 'guest';
-    else if (email && adminEmails.includes(email.toLowerCase())) role = 'admin';
-
-    console.log(`User role determination:`, {
-      email,
-      displayName,
-      isAnonymous,
-      role,
-      adminMatch: email ? adminEmails.includes(email.toLowerCase()) : false
-    });
-
-    // Sync user with database
+    
+    // Sync user with MySQL database
     let dbUser;
     try {
       dbUser = await User.createOrUpdateUser(uid, email || `guest_${uid}`, role, displayName);
-      console.log('✅ Synced user in database:', {
-        id: dbUser.id,
-        email: dbUser.email,
-        role: dbUser.role,
-        user_id: dbUser.user_id
-      });
     } catch (dbError) {
       console.error('Database sync failed:', dbError.message);
-      return res.status(500).json({
+      return res.status(500).json({ 
         error: 'Database sync failed',
         message: 'Failed to sync user with database'
       });
     }
 
-    // Attach user info to request
+    // Attach user information to request
     req.user = {
       uid,
       email: email || `guest_${uid}`,
       dbUser: {
         id: dbUser.id,
-        user_id: dbUser.user_id,
-        email: dbUser.email,
         role: dbUser.role,
         firebase_uid: dbUser.firebase_uid,
+        user_id: dbUser.user_id,
         created_at: dbUser.created_at,
         updated_at: dbUser.updated_at
       },
       isAnonymous
     };
 
-    console.log(`✅ User authenticated: ${req.user.email} (${dbUser.role})`);
+    // Log successful authentication (for debugging)
+    console.log(`✅ User authenticated: ${email || `guest_${uid}`} (${dbUser.role})`);
+
     next();
   } catch (error) {
     console.error('Authentication middleware error:', error);
-    res.status(500).json({
+    return res.status(500).json({ 
       error: 'Authentication failed',
       message: 'Internal server error during authentication'
     });
@@ -127,69 +113,85 @@ module.exports = async function (req, res, next) {
 
 /**
  * Optional Authentication Middleware
- * Allows both authenticated and guest users to proceed
+ * Allows requests to proceed with or without authentication
  */
 module.exports.optional = async function (req, res, next) {
   try {
     const authHeader = req.headers.authorization;
-
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      req.user = { uid: null, email: null, dbUser: null, isAnonymous: true };
+      // No token provided, continue as guest
+      req.user = {
+        uid: null,
+        email: null,
+        dbUser: null,
+        isAnonymous: true
+      };
       return next();
     }
 
+    // Try to authenticate, but don't fail if it doesn't work
     const idToken = authHeader.split(' ')[1];
     if (!idToken) {
-      req.user = { uid: null, email: null, dbUser: null, isAnonymous: true };
+      req.user = {
+        uid: null,
+        email: null,
+        dbUser: null,
+        isAnonymous: true
+      };
       return next();
     }
 
     try {
       const decodedToken = await admin.auth().verifyIdToken(idToken);
       const isAnonymous = decodedToken.provider_id === 'anonymous';
-
-      const adminEmails = [
-        'sajwanaayush12@gmail.com',
-        'qwerty@gmail.com'
-      ];
-
-      let { uid, email } = decodedToken;
+      const role = isAnonymous ? 'guest' : 'user';
+      const { uid, email } = decodedToken;
+      
+      // Get displayName from Firebase
       let displayName = null;
       try {
         const userRecord = await admin.auth().getUser(uid);
         displayName = userRecord.displayName || null;
-        if (!email && userRecord.email) email = userRecord.email;
-      } catch (_) {}
-
-      let role = 'user';
-      if (isAnonymous) role = 'guest';
-      else if (email && adminEmails.includes(email.toLowerCase())) role = 'admin';
-
+      } catch (error) {
+        // Continue without displayName
+      }
+      
       const dbUser = await User.createOrUpdateUser(uid, email || `guest_${uid}`, role, displayName);
-
+      
       req.user = {
         uid,
         email: email || `guest_${uid}`,
         dbUser: {
           id: dbUser.id,
-          user_id: dbUser.user_id,
-          email: dbUser.email,
           role: dbUser.role,
           firebase_uid: dbUser.firebase_uid,
+          user_id: dbUser.user_id,
           created_at: dbUser.created_at,
           updated_at: dbUser.updated_at
         },
         isAnonymous
       };
-    } catch {
-      // Continue as guest if verification fails
-      req.user = { uid: null, email: null, dbUser: null, isAnonymous: true };
+    } catch (error) {
+      // Authentication failed, continue as guest
+      req.user = {
+        uid: null,
+        email: null,
+        dbUser: null,
+        isAnonymous: true
+      };
     }
 
     next();
   } catch (error) {
     console.error('Optional auth middleware error:', error);
-    req.user = { uid: null, email: null, dbUser: null, isAnonymous: true };
+    // Continue as guest on any error
+    req.user = {
+      uid: null,
+      email: null,
+      dbUser: null,
+      isAnonymous: true
+    };
     next();
   }
 };

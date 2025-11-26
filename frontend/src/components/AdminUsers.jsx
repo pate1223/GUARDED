@@ -29,7 +29,7 @@ export default function AdminUsers() {
       const token = await currentUser.getIdToken();
       console.log('Got token, making fetch request...');
 
-      let url = 'http://localhost:3000/api/admin/users';
+      let url = '/api/admin/users';
       const params = new URLSearchParams();
 
       if (searchQuery) params.append('query', searchQuery);
@@ -83,7 +83,7 @@ export default function AdminUsers() {
 
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch('http://localhost:3000/api/admin/users', {
+      const response = await fetch('/api/admin/users', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -111,7 +111,7 @@ export default function AdminUsers() {
   const handleUpdateRole = async (userId, newRole) => {
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch(`http://localhost:3000/api/admin/users/${userId}/role`, {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -139,7 +139,7 @@ export default function AdminUsers() {
 
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch(`http://localhost:3000/api/admin/users/${selectedUser.id}`, {
+      const response = await fetch(`/api/admin/users/${selectedUser.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

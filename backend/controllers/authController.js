@@ -21,17 +21,15 @@ exports.getProfile = async (req, res) => {
       });
     }
 
-    console.log('Getting profile for user ID:', req.user.dbUser.id);
     const user = await User.getById(req.user.dbUser.id);
     if (!user) {
-      console.log('User not found in database');
       return res.status(404).json({
         error: 'User not found',
         message: 'User profile not found in database'
       });
     }
 
-    console.log('User found:', { id: user.id, email: user.email, role: user.role });
+    // Remove sensitive information
     const { password, ...userProfile } = user;
 
     res.json({
@@ -61,6 +59,8 @@ exports.updateProfile = async (req, res) => {
     }
 
     const { email, ...updateData } = req.body;
+
+    // Only allow updating non-sensitive fields
     const allowedUpdates = ['display_name', 'bio', 'preferences'];
     const filteredUpdates = {};
 
@@ -77,6 +77,7 @@ exports.updateProfile = async (req, res) => {
       });
     }
 
+    // Update user profile
     const updateQuery = `
       UPDATE users 
       SET ${Object.keys(filteredUpdates).map(key => `${key} = ?`).join(', ')}, updated_at = NOW() 
@@ -85,6 +86,8 @@ exports.updateProfile = async (req, res) => {
     const updateValues = [...Object.values(filteredUpdates), req.user.dbUser.id];
 
     await db.query(updateQuery, updateValues);
+
+    // Get updated user
     const updatedUser = await User.getById(req.user.dbUser.id);
 
     res.json({
@@ -107,18 +110,28 @@ exports.updateProfile = async (req, res) => {
  */
 exports.createGuestUser = async (req, res) => {
   try {
+    // Generate a simple, valid guest email
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substr(2, 5);
     const guestEmail = `guest${timestamp}${randomId}@example.com`;
 
+    // Create guest user in Firebase
     const userRecord = await admin.auth().createUser({
       email: guestEmail,
-      password: 'temp123456',
+      password: 'temp123456', // temporary password
       displayName: 'Guest User',
       emailVerified: false
     });
 
-    const guestUser = await User.createOrUpdateUser(userRecord.uid, guestEmail, 'guest');
+    // Create guest user in MySQL
+    const guestUser = await User.createOrUpdateUser(
+      userRecord.uid,
+      guestEmail,
+      'guest',
+      'Guest User'
+    );
+
+    // Create custom token for guest user
     const customToken = await admin.auth().createCustomToken(userRecord.uid);
 
     res.status(201).json({
@@ -161,6 +174,7 @@ exports.convertGuestToUser = async (req, res) => {
     }
 
     const { email, password } = req.body;
+
     if (!email || !password) {
       return res.status(400).json({
         error: 'Missing required fields',
@@ -168,7 +182,14 @@ exports.convertGuestToUser = async (req, res) => {
       });
     }
 
-    await admin.auth().updateUser(req.user.uid, { email, password, emailVerified: false });
+    // Update Firebase user with email/password
+    await admin.auth().updateUser(req.user.uid, {
+      email,
+      password,
+      emailVerified: false
+    });
+
+    // Update MySQL role
     await User.updateRole(req.user.dbUser.id, 'user', req.user.dbUser.id);
 
     res.json({
@@ -191,23 +212,35 @@ exports.convertGuestToUser = async (req, res) => {
 exports.verifyToken = async (req, res) => {
   try {
     const { idToken } = req.body;
+
     if (!idToken) {
-      return res.status(400).json({ error: 'Missing token', message: 'ID token is required' });
+      return res.status(400).json({
+        error: 'Missing token',
+        message: 'ID token is required'
+      });
     }
 
+    // Verify token
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     let { uid, email } = decodedToken;
-    let displayName = null;
 
+    // Get full user record from Firebase to access displayName and email
+    let displayName = null;
     try {
       const userRecord = await admin.auth().getUser(uid);
       displayName = userRecord.displayName || null;
-      if (!email && userRecord.email) email = userRecord.email;
-    } catch {}
+      // Email might not be in token but could be in user record
+      if (!email && userRecord.email) {
+        email = userRecord.email;
+      }
+    } catch (error) {
+      // Continue without displayName
+    }
 
     const isAnonymous = decodedToken.provider_id === 'anonymous';
     const role = isAnonymous ? 'guest' : 'user';
 
+    // Sync with MySQL
     const dbUser = await User.createOrUpdateUser(uid, email || `guest_${uid}`, role, displayName);
 
     res.json({
@@ -224,25 +257,22 @@ exports.verifyToken = async (req, res) => {
   } catch (error) {
     console.error('Token verification error:', error);
 
-    const errors = {
-      'auth/id-token-expired': 'Token expired',
-      'auth/id-token-revoked': 'Token revoked'
-    };
-
-    if (errors[error.code]) {
+    if (error.code === 'auth/id-token-expired') {
       return res.status(401).json({
-        error: errors[error.code],
-        message:
-          error.code === 'auth/id-token-revoked'
-            ? 'Your session has been revoked. Please sign in again.'
-            : 'Please refresh your authentication token'
+        error: 'Token expired',
+        message: 'Please refresh your authentication token'
+      });
+    } else if (error.code === 'auth/id-token-revoked') {
+      return res.status(401).json({
+        error: 'Token revoked',
+        message: 'Your session has been revoked. Please sign in again.'
+      });
+    } else {
+      return res.status(401).json({
+        error: 'Invalid token',
+        message: 'Authentication token is invalid or corrupted'
       });
     }
-
-    return res.status(401).json({
-      error: 'Invalid token',
-      message: 'Authentication token is invalid or corrupted'
-    });
   }
 };
 
@@ -253,8 +283,9 @@ exports.verifyToken = async (req, res) => {
 exports.registerUser = async (req, res) => {
   try {
     console.log('Registration request body:', req.body);
-    const { firebase_uid, email, role, user_id, name } = req.body;
+    const { firebase_uid, email, role, user_id } = req.body;
 
+    // Validate required fields
     if (!firebase_uid || !email || !role) {
       return res.status(400).json({
         success: false,
@@ -263,6 +294,7 @@ exports.registerUser = async (req, res) => {
       });
     }
 
+    // Validate role
     if (!['user', 'admin'].includes(role)) {
       return res.status(400).json({
         success: false,
@@ -271,7 +303,8 @@ exports.registerUser = async (req, res) => {
       });
     }
 
-    const newUser = await User.createOrUpdateUser(firebase_uid, email, role, name || user_id);
+    // Create or update user (UPSERT)
+    const newUser = await User.createOrUpdateUser(firebase_uid, email, role, user_id);
 
     res.status(201).json({
       success: true,
@@ -279,9 +312,9 @@ exports.registerUser = async (req, res) => {
       user: {
         id: newUser.id,
         firebase_uid: newUser.firebase_uid,
-        name: newUser.name,
         email: newUser.email,
         role: newUser.role,
+        user_id: newUser.user_id,
         created_at: newUser.created_at,
         updated_at: newUser.updated_at
       }

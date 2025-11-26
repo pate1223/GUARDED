@@ -27,7 +27,7 @@ export default function AdminQuestions() {
   const fetchQuizzes = async () => {
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch('http://localhost:3000/api/quizzes', {
+      const response = await fetch('/api/quizzes', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -53,7 +53,7 @@ export default function AdminQuestions() {
     try {
       setLoading(true);
       const token = await currentUser.getIdToken();
-      const response = await fetch(`http://localhost:3000/api/quizzes/${quizId}`, {
+      const response = await fetch(`/api/quizzes/${quizId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -122,8 +122,8 @@ export default function AdminQuestions() {
     try {
       const token = await currentUser.getIdToken();
       const url = modalMode === 'add'
-        ? `http://localhost:3000/api/admin/questions`
-        : `http://localhost:3000/api/admin/questions/${questionForm.id}`;
+        ? `/api/admin/questions`
+        : `/api/admin/questions/${questionForm.id}`;
 
       const method = modalMode === 'add' ? 'POST' : 'PUT';
 
@@ -162,7 +162,7 @@ export default function AdminQuestions() {
 
     try {
       const token = await currentUser.getIdToken();
-      const response = await fetch(`http://localhost:3000/api/admin/questions/${questionId}`, {
+      const response = await fetch(`/api/admin/questions/${questionId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

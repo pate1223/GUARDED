@@ -2,17 +2,11 @@
 const db = require('./db');
 
 class User {
-  /**
-   * Create or update a user record based on Firebase auth data.
-   * Syncs email, role, and displayName (used as user_id).
-   */
+  // Create or update user from Firebase auth
   static async createOrUpdateUser(firebaseUid, email, role = 'user', displayName = null) {
     try {
       console.log('User.createOrUpdateUser called with:', { firebaseUid, email, role, displayName });
-
-      // Use displayName as user_id (fallback to email or firebaseUid)
-      const userId = displayName || email || firebaseUid;
-
+      
       // Check if user exists
       const [existingUsers] = await db.query(
         'SELECT * FROM users WHERE firebase_uid = ?',
@@ -23,30 +17,41 @@ class User {
 
       if (existingUsers.length > 0) {
         // Update existing user
+        const existingUser = existingUsers[0];
+        // Only update user_id if displayName is provided and different from existing
+        // Preserve existing user_id if displayName is null/empty
+        const userId = displayName && displayName.trim() 
+          ? displayName.trim() 
+          : (existingUser.user_id || email || firebaseUid);
+        
         console.log('Updating existing user with role:', role, 'user_id:', userId);
         await db.query(
           'UPDATE users SET email = ?, role = ?, user_id = ?, updated_at = NOW() WHERE firebase_uid = ?',
           [email, role, userId, firebaseUid]
         );
-
-        // Return updated info merged with original record
+        
+        // Return updated user info
         return {
-          ...existingUsers[0],
+          ...existingUser,
           email,
           role,
-          user_id: userId,
-          updated_at: new Date()
+          user_id: userId
         };
       } else {
         // Create new user
-        console.log('Creating new user in database');
+        // Use displayName as user_id, fallback to email or firebase_uid
+        const userId = displayName && displayName.trim() 
+          ? displayName.trim() 
+          : (email || firebaseUid);
+        
+        console.log('Creating new user in database with user_id:', userId);
         const [result] = await db.query(
           'INSERT INTO users (firebase_uid, email, role, user_id, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())',
           [firebaseUid, email, role, userId]
         );
-
+        
         console.log('User inserted with ID:', result.insertId);
-
+        
         return {
           id: result.insertId,
           firebase_uid: firebaseUid,
@@ -66,7 +71,10 @@ class User {
   // Get user by Firebase UID
   static async getByFirebaseUid(firebaseUid) {
     try {
-      const [users] = await db.query('SELECT * FROM users WHERE firebase_uid = ?', [firebaseUid]);
+      const [users] = await db.query(
+        'SELECT * FROM users WHERE firebase_uid = ?',
+        [firebaseUid]
+      );
       return users[0] || null;
     } catch (error) {
       throw new Error(`Failed to get user: ${error.message}`);
@@ -76,17 +84,23 @@ class User {
   // Get user by email
   static async getByEmail(email) {
     try {
-      const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+      const [users] = await db.query(
+        'SELECT * FROM users WHERE email = ?',
+        [email]
+      );
       return users[0] || null;
     } catch (error) {
       throw new Error(`Failed to get user by email: ${error.message}`);
     }
   }
 
-  // Get user by numeric ID
+  // Get user by ID
   static async getById(id) {
     try {
-      const [users] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
+      const [users] = await db.query(
+        'SELECT * FROM users WHERE id = ?',
+        [id]
+      );
       return users[0] || null;
     } catch (error) {
       throw new Error(`Failed to get user: ${error.message}`);
@@ -96,13 +110,19 @@ class User {
   // Update user role (admin only)
   static async updateRole(userId, newRole, adminId) {
     try {
+      // Validate role
       const validRoles = ['guest', 'user', 'admin'];
       if (!validRoles.includes(newRole)) {
         throw new Error('Invalid role');
       }
 
-      await db.query('UPDATE users SET role = ?, updated_at = NOW() WHERE id = ?', [newRole, userId]);
+      // Update user role
+      await db.query(
+        'UPDATE users SET role = ?, updated_at = NOW() WHERE id = ?',
+        [newRole, userId]
+      );
 
+      // Log the role change
       await db.query(
         'INSERT INTO admin_logs (admin_id, action, target_user_id, details, created_at) VALUES (?, ?, ?, ?, NOW())',
         [adminId, 'ROLE_UPDATE', userId, `Role changed to ${newRole}`]
@@ -129,13 +149,16 @@ class User {
   // Delete user (admin only)
   static async deleteUser(userId, adminId) {
     try {
+      // Check if user exists
       const user = await this.getById(userId);
       if (!user) {
         throw new Error('User not found');
       }
 
+      // Delete user
       await db.query('DELETE FROM users WHERE id = ?', [userId]);
 
+      // Log the deletion
       await db.query(
         'INSERT INTO admin_logs (admin_id, action, target_user_id, details, created_at) VALUES (?, ?, ?, ?, NOW())',
         [adminId, 'USER_DELETE', userId, `User ${user.email} deleted`]
@@ -150,8 +173,12 @@ class User {
   // Get user statistics (admin only)
   static async getUserStats() {
     try {
-      const [roleStats] = await db.query('SELECT role, COUNT(*) as count FROM users GROUP BY role');
+      const [roleStats] = await db.query(
+        'SELECT role, COUNT(*) as count FROM users GROUP BY role'
+      );
+      
       const [totalUsers] = await db.query('SELECT COUNT(*) as total FROM users');
+      
       return {
         roleStats,
         totalUsers: totalUsers[0].total

@@ -21,12 +21,20 @@ export default function CreateAccount({ onBack, onGoToLogin, onCloseParent, lang
       return;
     }
 
+    // Validate name is not empty
+    if (!name || !name.trim()) {
+      setError(i18n(lang, 'enterFullName') || 'Please enter your full name');
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     try {
-      // Create user with Firebase
-      const result = await signUpWithEmail(email, password);
+      const trimmedName = name.trim();
+      
+      // Create user with Firebase (pass name as displayName)
+      const result = await signUpWithEmail(email, password, trimmedName);
       
       if (result.success) {
         // Get Firebase token
@@ -35,7 +43,7 @@ export default function CreateAccount({ onBack, onGoToLogin, onCloseParent, lang
         // Register user in backend database
         const registerData = {
           firebase_uid: result.user.uid,
-          user_id: name, // Using name as user_id for now
+          user_id: trimmedName, // Use trimmed name
           email: email,
           role: 'user' // Default role
         };

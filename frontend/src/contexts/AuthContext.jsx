@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { initializeFirebase, onAuthStateChanged } from '../services/firebase';
+import { initializeFirebase, onAuthStateChanged, getCurrentUser } from '../services/firebase';
 import { apiService } from '../services/api';
 
 const AuthContext = createContext();
@@ -11,8 +11,8 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);         // Firebase user
-  const [userInfo, setUserInfo] = useState(null); // Backend user (role, id, etc.)
+  const [user, setUser] = useState(null);         
+  const [userInfo, setUserInfo] = useState(null); 
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState(null);
@@ -26,36 +26,32 @@ export const AuthProvider = ({ children }) => {
         await initializeFirebase();
         setInitialized(true);
 
-        // Listen to login/logout events
         unsubscribe = onAuthStateChanged(async (firebaseUser) => {
           if (firebaseUser) {
             setUser(firebaseUser);
 
             try {
-              // Always refresh token for backend
+              // Always refresh token for backend accuracy
               const token = await firebaseUser.getIdToken(true);
               localStorage.setItem('firebase_token', token);
 
-              console.log(
-                '🔑 Firebase token refreshed:',
-                token.substring(0, 15) + '...'
-              );
+              console.log("🔑 Token refreshed:", token.substring(0, 15) + "...");
 
-              // Verify with backend
+              // Verify against backend
               const result = await apiService.verifyUser(token);
 
               if (result.success && result.user) {
                 setUserInfo(result.user);
               } else {
-                console.warn('⚠️ Backend verification failed:', result.error);
+                console.warn("⚠️ Backend verification failed:", result.error);
                 setUserInfo(null);
               }
             } catch (err) {
-              console.error('❌ Error verifying user with backend:', err);
+              console.error("❌ Error verifying user with backend:", err);
               setUserInfo(null);
             }
           } else {
-            // No user / logged out
+            // User is signed out
             setUser(null);
             setUserInfo(null);
             localStorage.removeItem('firebase_token');
@@ -63,8 +59,9 @@ export const AuthProvider = ({ children }) => {
 
           setLoading(false);
         });
+
       } catch (err) {
-        console.error('🔥 Auth initialization error:', err);
+        console.error("🔥 Auth initialization error:", err);
         setError(err.message);
         setLoading(false);
       }
@@ -83,11 +80,10 @@ export const AuthProvider = ({ children }) => {
   const isGuest = userInfo?.role === 'guest';
   const isAuthenticated = !!user;
 
-  // Optional: debug output (safe)
   useEffect(() => {
-    console.log('🧭 Auth State Changed:', {
+    console.log("🧭 Auth State Updated:", {
       firebaseUser: user?.email || null,
-      backendUserRole: userInfo?.role || null,
+      backendRole: userInfo?.role || null,
       isAuthenticated,
       isAdmin,
       isUser,
@@ -101,7 +97,6 @@ export const AuthProvider = ({ children }) => {
     loading,
     initialized,
     error,
-
     isAuthenticated,
     isAdmin,
     isUser,
