@@ -1,49 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Logo from './assets/logo.png';
 import { useAuth } from './contexts/AuthContext';
 import FeedbackList from './FeedbackList';
-import QuizEditor from './QuizEditor';
-import UsersList from './UsersList';
+import AdminUsers from './components/AdminUsers';
+import AdminQuizStats from './components/AdminQuizStats';
+import { apiService } from './services/api';
 
-
-export default function AdminDashboard() {
+export default function AdminDashboard({ lang, i18n }) {
   const { user } = useAuth() || {};
   const [active, setActive] = useState('dashboard');
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const menu = [
-    { key: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { key: 'feedback', label: 'Feedback', icon: '💬' },
-    { key: 'quizzes', label: 'Quizzes/Questions', icon: '🧩' },
-    { key: 'users', label: 'Users', icon: '👥' },
-    { key: 'exports', label: 'Exports', icon: '📤' },
-    { key: 'settings', label: 'Settings', icon: '⚙️' },
+    { key: 'dashboard', label: i18n(lang, 'dashboard'), icon: '📊' },
+    { key: 'analytics', label: i18n(lang, 'quizAnalytics'), icon: '📈' },
+    { key: 'feedback', label: i18n(lang, 'feedback'), icon: '💬' },
+    { key: 'users', label: i18n(lang, 'users'), icon: '👥' },
+    { key: 'settings', label: i18n(lang, 'settings'), icon: '⚙️' },
   ];
 
-  const latestFeedback = [
-    { id: 1, name: 'Mirana', text: "I've used other kits, but this one is the best..." },
-    { id: 2, name: 'Asha', text: 'Useful content and simple UX.' },
-  ];
+  // Fetch dashboard stats
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        const response = await apiService.getDashboardStats();
+        if (response.success) {
+          setStats(response.data);
+        } else {
+          setError(response.error);
+        }
+      } catch (err) {
+        setError('Failed to load dashboard statistics');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (active === 'dashboard') fetchStats();
+  }, [active]);
+
+  const maxChartValue = stats?.chartData ? Math.max(...stats.chartData, 1) : 12;
 
   return (
-    <div className="min-h-screen bg-[#f3f1fb] flex">
-      {/* Left nav */}
-      <aside className="w-64 bg-white border-r border-purple-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex transition-colors duration-300">
+      {/* LEFT SIDEBAR */}
+      <aside className="w-64 bg-white/90 dark:bg-gray-800/90 border-r border-gray-200/50 dark:border-gray-700/50 p-6 backdrop-blur-lg">
+
+        {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-full bg-white border flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 border border-purple-200 dark:border-purple-500/50 flex items-center justify-center">
             <img src={Logo} alt="GuardEd" className="w-10 h-10" />
           </div>
-          <div>
-            <div className="text-[#5c52ff] font-extrabold">GuardEd</div>
-          </div>
+          <span className="text-[#5c52ff] dark:text-purple-400 font-extrabold">
+            GuardEd
+          </span>
         </div>
 
+        {/* Navigation */}
         <nav className="flex flex-col gap-2">
           {menu.map((m) => (
             <button
               key={m.key}
               onClick={() => setActive(m.key)}
-              className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg transition ${
-                active === m.key ? 'bg-[#5c52ff] text-white shadow' : 'text-gray-600 hover:bg-purple-50'
+              className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg transition-all ${
+                active === m.key
+                  ? 'bg-[#5c52ff] dark:bg-purple-600 text-white shadow-lg'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-gray-700/50'
               }`}
             >
               <span className="text-lg">{m.icon}</span>
@@ -51,149 +76,153 @@ export default function AdminDashboard() {
             </button>
           ))}
         </nav>
+
       </aside>
 
-      {/* Main area */}
+      {/* MAIN CONTENT */}
       <main className="flex-1 p-8">
+
+        {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-4xl font-extrabold text-[#2b2360]">Dashboard</h1>
-            <p className="text-gray-500">Welcome back, {user?.displayName || user?.email || 'Admin'}!</p>
+            <h1 className="text-4xl font-extrabold text-[#2b2360] dark:text-purple-300">
+              {i18n(lang, 'dashboard')}
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400">
+              {i18n(lang, 'welcomeBackAdmin')},{' '}
+              {user?.displayName || user?.email || i18n(lang, 'adminRole')}!
+            </p>
           </div>
+
           <div className="flex items-center gap-4">
-            <div className="w-48">
-              <input
-                placeholder="Search"
-                className="w-full px-4 py-2 rounded-lg border bg-white"
-              />
-            </div>
+            <input
+              placeholder={i18n(lang, 'search')}
+              className="px-4 py-2 rounded-lg border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+            />
+
             <button
-              className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium"
+              className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600"
               onClick={async () => {
                 const { signOutUser } = await import('./services/firebase');
                 await signOutUser();
                 window.location.href = '/';
               }}
             >
-              Sign Out
+              {i18n(lang, 'signOut')}
             </button>
           </div>
         </div>
 
+        {/* DASHBOARD SECTION */}
         {active === 'dashboard' && (
-          <div>
-            <div className="grid grid-cols-3 gap-6 mb-6">
-              <div className="col-span-2 bg-white rounded-xl p-6 shadow">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <div className="text-sm text-gray-400">Total Attempts</div>
-                    <div className="text-3xl font-extrabold text-[#5c52ff]">112</div>
-                  </div>
-                  <div className="text-sm text-gray-400">12 Days</div>
-                </div>
-                <div className="h-44 bg-[#faf8ff] rounded-lg flex items-end p-4">
-                  {/* simple bars */}
-                  <div className="w-full flex items-end gap-3">
-                    {[4,11,6,7,6,12,5,10,1,7,4,6].map((v,i)=>(
-                      <div key={i} className="flex-1 h-full flex items-end">
-                        <div className="w-full bg-gradient-to-b from-[#5c52ff] to-[#bfb7ff] rounded-t-lg" style={{height: `${(v/12)*100}%`}}></div>
+          <>
+            {loading ? (
+              <div className="flex justify-center items-center h-64 text-gray-500 dark:text-gray-400">
+                Loading dashboard...
+              </div>
+            ) : error ? (
+              <div className="p-4 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
+                {error}
+              </div>
+            ) : (
+              <>
+                {/* Main Stats */}
+                <div className="grid grid-cols-3 gap-6 mb-6">
+
+                  {/* Attempts Chart */}
+                  <div className="col-span-2 bg-white/90 dark:bg-gray-800/90 rounded-xl p-6 border dark:border-gray-700/50 shadow-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-400 dark:text-gray-500">
+                          {i18n(lang, 'totalAttempts')}
+                        </p>
+                        <p className="text-3xl font-extrabold text-[#5c52ff] dark:text-purple-400">
+                          {stats?.totalAttempts || 0}
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+                    </div>
 
-              <div className="bg-white rounded-xl p-6 shadow">
-                <div className="text-sm text-gray-400">Completion Rate</div>
-                <div className="text-3xl font-extrabold text-[#5c52ff]">40%</div>
-                <div className="mt-6 h-20 bg-[#faf8ff] rounded-lg"></div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-6">
-              <section className="col-span-2 space-y-6">
-                <div className="bg-white rounded-xl p-6 shadow">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-[#2b2360]">Latest Feedback</h3>
-                    <a className="text-sm text-[#5c52ff]" href="#">See all</a>
-                  </div>
-                  <div className="space-y-4">
-                    {latestFeedback.map(f => (
-                      <div key={f.id} className="bg-[#faf8ff] p-4 rounded-lg">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">👤</div>
-                          <div>
-                            <div className="font-semibold text-[#2b2360]">{f.name}</div>
-                            <div className="text-gray-600">{f.text}</div>
+                    <div className="h-44 mt-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg flex items-end p-4">
+                      <div className="w-full flex items-end gap-3">
+                        {stats?.chartData?.map((v, i) => (
+                          <div key={i} className="flex-1 flex items-end">
+                            <div
+                              className="w-full rounded-t-lg bg-gradient-to-b from-[#5c52ff] to-[#bfb7ff] dark:from-purple-500 dark:to-purple-700"
+                              style={{ height: `${(v / maxChartValue) * 100}%` }}
+                            ></div>
                           </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-xl p-6 shadow">
-                  <h3 className="text-lg font-bold text-[#2b2360] mb-4">Recent Attempts</h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                      <thead>
-                        <tr className="text-sm text-gray-500">
-                          <th className="pb-2">Quiz</th>
-                          <th className="pb-2">Score</th>
-                          <th className="pb-2">Status</th>
-                          <th className="pb-2">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[1,2,3,4,5].map(i=>(
-                          <tr key={i} className="border-t">
-                            <td className="py-3">Quiz {i}</td>
-                            <td className="py-3"> {Math.floor(Math.random()*100)}</td>
-                            <td className="py-3 text-green-500">Completed</td>
-                            <td className="py-3 text-gray-500">20-09-25</td>
-                          </tr>
                         ))}
-                      </tbody>
-                    </table>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </section>
 
-              <aside className="space-y-6">
-                <div className="bg-white rounded-xl p-6 shadow">
-                  <div className="text-sm text-gray-400">Active Users Now</div>
-                  <div className="text-3xl font-extrabold text-[#5c52ff]">112</div>
-                </div>
-
-                <div className="bg-white rounded-xl p-6 shadow">
-                  <div className="text-sm text-gray-400">Top Quiz</div>
-                  <div className="text-xl font-bold">Phishing Awareness</div>
-                </div>
-
-                <div className="bg-white rounded-xl p-4 shadow">
-                  <h4 className="font-semibold text-[#2b2360] mb-2">Quick Actions</h4>
-                  <div className="flex flex-col gap-3">
-                    <button className="px-4 py-2 bg-[#5c52ff] text-white rounded-md">Take Quiz</button>
-                    <button className="px-4 py-2 bg-green-600 text-white rounded-md">Learn More</button>
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-md" onClick={()=>window.location.href='#'}>View Profile</button>
+                  {/* Completion Rate */}
+                  <div className="bg-white/90 dark:bg-gray-800/90 rounded-xl p-6 border dark:border-gray-700/50 shadow-xl">
+                    <p className="text-sm text-gray-400 dark:text-gray-500">
+                      {i18n(lang, 'completionRate')}
+                    </p>
+                    <p className="text-3xl font-extrabold text-[#5c52ff] dark:text-purple-400">
+                      {stats?.completionRate || 0}%
+                    </p>
                   </div>
+
                 </div>
-              </aside>
-            </div>
-          </div>
+
+                {/* Feedback + Recent Attempts */}
+                <div className="grid grid-cols-3 gap-6">
+
+                  {/* Feedback */}
+                  <section className="col-span-2 bg-white/90 dark:bg-gray-800/90 rounded-xl p-6 border dark:border-gray-700/50 shadow-xl">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-bold text-[#2b2360] dark:text-purple-300">
+                        {i18n(lang, 'latestFeedback')}
+                      </h3>
+                      <button
+                        onClick={() => setActive('feedback')}
+                        className="text-sm text-[#5c52ff] dark:text-purple-400 hover:underline"
+                      >
+                        {i18n(lang, 'seeAll')}
+                      </button>
+                    </div>
+
+                    {stats?.latestFeedback?.length ? (
+                      stats.latestFeedback.map((f) => (
+                        <div key={f.id} className="p-4 mb-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                          <strong className="dark:text-purple-200">{f.name}</strong>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">{f.text}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 dark:text-gray-500 text-center py-4">
+                        {i18n(lang, 'noFeedbackYet')}
+                      </p>
+                    )}
+                  </section>
+
+                  {/* Side Stats */}
+                  <aside className="space-y-6">
+                    <div className="bg-white/90 dark:bg-gray-800/90 rounded-xl p-6 border dark:border-gray-700/50 shadow-xl">
+                      <p className="text-sm text-gray-400 dark:text-gray-500">{i18n(lang, 'totalUsers')}</p>
+                      <p className="text-3xl font-extrabold text-[#5c52ff] dark:text-purple-400">{stats?.totalUsers || 0}</p>
+                    </div>
+
+                    <div className="bg-white/90 dark:bg-gray-800/90 rounded-xl p-6 border dark:border-gray-700/50 shadow-xl">
+                      <p className="text-sm text-gray-400 dark:text-gray-500">{i18n(lang, 'topQuiz')}</p>
+                      <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats?.topQuiz || '—'}</p>
+                    </div>
+                  </aside>
+
+                </div>
+              </>
+            )}
+          </>
         )}
 
-        {active === 'feedback' && (
-          <FeedbackList />
-        )}
+        {active === 'analytics' && <AdminQuizStats lang={lang} i18n={i18n} />}
 
-        {active === 'quizzes' && (
-          <QuizEditor />
-        )}
+        {active === 'feedback' && <FeedbackList lang={lang} i18n={i18n} />}
 
-        {active === 'users' && (
-  <UsersList />
-)}
+        {active === 'users' && <AdminUsers lang={lang} i18n={i18n} />}
 
       </main>
     </div>

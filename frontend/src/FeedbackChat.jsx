@@ -1,38 +1,41 @@
 import React, { useState } from "react";
-import { apiService } from './services/api';
-
+import { apiService } from "./services/api";
+import { useLanguage } from "./contexts/LanguageContext";
 
 export default function FeedbackChat() {
+  const { t } = useLanguage();
+
+  // fully translated questions
   const questions = [
     {
       id: 1,
-      title: "Overall, how satisfied are you with the app?",
+      title: t("satisfactionQuestion"),
       type: "rating",
-      hint: "1 = Very dissatisfied, 5 = Very satisfied",
+      hint: t("satisfactionHint"),
     },
     {
       id: 2,
-      title: "What did you like most about the app?",
+      title: t("whatLikedMost"),
       type: "text",
-      placeholder: "Features, UX, content, etc.",
+      placeholder: t("likedMostPlaceholder"),
     },
     {
       id: 3,
-      title: "What can we improve?",
+      title: t("whatCanImprove"),
       type: "text",
-      placeholder: "Bugs, missing features, clarity...",
+      placeholder: t("improvePlaceholder"),
     },
     {
       id: 4,
-      title: "Would you recommend GuardEd to a friend or colleague?",
+      title: t("wouldRecommend"),
       type: "choice",
-      options: ["Yes", "Maybe", "No"],
+      options: [t("yes"), t("maybe"), t("no")],
     },
     {
       id: 5,
-      title: "Any other comments or suggestions?",
+      title: t("otherComments"),
       type: "text",
-      placeholder: "Optional",
+      placeholder: t("optional"),
     },
   ];
 
@@ -44,6 +47,7 @@ export default function FeedbackChat() {
     q4: "",
     q5: "",
   });
+
   const [hover, setHover] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -52,21 +56,22 @@ export default function FeedbackChat() {
   const q = questions[step];
 
   function setAnswer(key, value) {
-    setAnswers((a) => ({ ...a, [key]: value }));
+    setAnswers((prev) => ({ ...prev, [key]: value }));
   }
 
   function next() {
-    if (step < questions.length - 1) setStep((s) => s + 1);
+    if (step < questions.length - 1) setStep(step + 1);
   }
+
   function back() {
-    if (step > 0) setStep((s) => s - 1);
+    if (step > 0) setStep(step - 1);
   }
 
   async function submit() {
     setLoading(true);
     setErrorMsg("");
 
-    const feedbackData = {
+    const payload = {
       rating: answers.rating,
       q2: answers.q2,
       q3: answers.q3,
@@ -74,57 +79,68 @@ export default function FeedbackChat() {
       q5: answers.q5,
     };
 
-    const result = await apiService.submitFeedback(feedbackData);
+    const result = await apiService.submitFeedback(payload);
 
     if (result.success) {
       setSubmitted(true);
     } else {
-      setErrorMsg(result.error || "Failed to send feedback. Please try again.");
+      setErrorMsg(result.error || t("failedToSendFeedback"));
     }
 
     setLoading(false);
   }
 
+  // SUBMITTED STATE UI
   if (submitted) {
     return (
-      <div className="min-h-[420px] w-full bg-[#f3f1fb] rounded-xl shadow p-6 flex flex-col items-center justify-center text-center animate-fadeIn">
-        <div className="text-2xl font-extrabold text-[#2b2360] mb-2">
-          🎉 Thanks for your feedback!
+      <div className="min-h-[420px] w-full bg-[#f3f1fb] dark:bg-gray-800 rounded-xl shadow dark:shadow-purple-500/20 p-6 flex flex-col items-center justify-center text-center animate-fadeIn">
+        <div className="text-2xl font-extrabold text-[#2b2360] dark:text-purple-300 mb-2">
+          🎉 {t("thanksFeedback")}
         </div>
-        <div className="text-sm text-gray-500 mb-6 max-w-md">
-          We appreciate you taking the time to help improve <span className="text-[#5c52ff] font-semibold">GuardEd</span>.
-        </div>
+
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-md">
+          {t("appreciateHelp")}{" "}
+          <span className="text-[#5c52ff] dark:text-purple-400 font-semibold">GuardEd</span>.
+        </p>
+
         <button
           onClick={() => {
             setSubmitted(false);
             setStep(0);
             setAnswers({ rating: 0, q2: "", q3: "", q4: "", q5: "" });
           }}
-          className="px-4 py-2 bg-[#5c52ff] text-white rounded-md hover:bg-[#4335d1] transition"
+          className="px-4 py-2 bg-[#5c52ff] dark:bg-purple-600 text-white rounded-md hover:bg-[#4335d1] dark:hover:bg-purple-700 transition"
         >
-          Submit Another
+          {t("submitAnother")}
         </button>
       </div>
     );
   }
 
+  // MAIN FEEDBACK UI
   return (
-    <div className="min-h-[420px] w-full bg-[#f3f1fb] rounded-xl shadow p-6 flex flex-col">
+    <div className="min-h-[420px] w-full bg-[#f3f1fb] dark:bg-gray-800 rounded-xl shadow dark:shadow-purple-500/20 p-6 flex flex-col">
+      {/* HEADER */}
       <header className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-[#2b2360]">Quick Feedback</h2>
-          <p className="text-sm text-gray-500">
-            Answer a few quick questions — should take under a minute.
+          <h2 className="text-2xl font-extrabold text-[#2b2360] dark:text-purple-300">
+            {t("quickFeedback")}
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {t("answerQuickQuestions")}
           </p>
         </div>
-        <div className="text-sm text-gray-400">
+
+        <div className="text-sm text-gray-400 dark:text-gray-500">
           {step + 1}/{questions.length}
         </div>
       </header>
 
-      <div className="flex-1 overflow-auto bg-white rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-[#2b2360] mb-3">{q.title}</h3>
+      {/* QUESTION BODY */}
+      <div className="flex-1 overflow-auto bg-white dark:bg-gray-900 rounded-lg p-6 border dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-[#2b2360] dark:text-purple-300 mb-3">{q.title}</h3>
 
+        {/* ⭐ RATING QUESTION */}
         {q.type === "rating" && (
           <div className="flex items-center gap-3">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -134,7 +150,6 @@ export default function FeedbackChat() {
                 onMouseEnter={() => setHover(i)}
                 onMouseLeave={() => setHover(0)}
                 className="focus:outline-none"
-                aria-label={`${i} star`}
               >
                 <svg
                   width="36"
@@ -149,30 +164,33 @@ export default function FeedbackChat() {
                 </svg>
               </button>
             ))}
-            <div className="ml-3 text-sm text-gray-500">
-              {answers.rating ? `${answers.rating} / 5` : "Tap to rate"}
+
+            <div className="ml-3 text-sm text-gray-500 dark:text-gray-400">
+              {answers.rating ? `${answers.rating} / 5` : t("tapToRate")}
             </div>
           </div>
         )}
 
+        {/* TEXT QUESTIONS */}
         {q.type === "text" && (
           <textarea
             value={answers[`q${q.id}`]}
             onChange={(e) => setAnswer(`q${q.id}`, e.target.value)}
             placeholder={q.placeholder || ""}
-            className="w-full min-h-[140px] p-3 rounded-md border resize-y focus:border-[#5c52ff] focus:ring-1 focus:ring-[#e9e6ff]"
+            className="w-full min-h-[140px] p-3 rounded-md border dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:placeholder-gray-500 resize-y focus:border-[#5c52ff] dark:focus:border-purple-500 focus:ring-1 focus:ring-[#e9e6ff] dark:focus:ring-purple-500/40"
           />
         )}
 
+        {/* CHOICE QUESTIONS */}
         {q.type === "choice" && (
           <div className="flex flex-col gap-3">
             {q.options.map((opt) => (
               <label
                 key={opt}
-                className={`flex items-center gap-3 p-3 rounded-md border ${
+                className={`flex items-center gap-3 p-3 rounded-md border cursor-pointer ${
                   answers.q4 === opt
-                    ? "border-[#5c52ff] bg-[#f0ecff]"
-                    : "border-transparent hover:bg-gray-50"
+                    ? "border-[#5c52ff] dark:border-purple-500 bg-[#f0ecff] dark:bg-purple-900/30"
+                    : "border-transparent hover:bg-gray-50 dark:hover:bg-gray-800"
                 }`}
               >
                 <input
@@ -180,47 +198,49 @@ export default function FeedbackChat() {
                   name="recommend"
                   checked={answers.q4 === opt}
                   onChange={() => setAnswer("q4", opt)}
-                  className="form-radio"
                 />
-                <span className="text-sm text-[#2b2360]">{opt}</span>
+                <span className="text-sm text-[#2b2360] dark:text-gray-200">{opt}</span>
               </label>
             ))}
           </div>
         )}
 
         {errorMsg && (
-          <div className="text-red-500 text-sm mt-4 bg-red-50 p-2 rounded">
+          <div className="text-red-500 dark:text-red-400 text-sm mt-4 bg-red-50 dark:bg-red-900/20 p-2 rounded border border-red-200 dark:border-red-800">
             ⚠️ {errorMsg}
           </div>
         )}
       </div>
 
+      {/* FOOTER BUTTONS */}
       <div className="mt-4 flex items-center justify-between">
-        <div className="text-xs text-gray-400">
-          All responses are anonymous unless you choose otherwise.
+        <div className="text-xs text-gray-400 dark:text-gray-500">
+          {t("allResponsesAnonymous")}
         </div>
+
         <div className="flex items-center gap-3">
           <button
             onClick={back}
             disabled={step === 0}
-            className="px-3 py-2 rounded-md border text-gray-600 disabled:opacity-50"
+            className="px-3 py-2 rounded-md border dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition"
           >
-            Back
+            {t("back")}
           </button>
+
           {step < questions.length - 1 ? (
             <button
               onClick={next}
-              className="px-4 py-2 bg-[#5c52ff] text-white rounded-md hover:bg-[#4335d1] transition"
+              className="px-4 py-2 bg-[#5c52ff] dark:bg-purple-600 text-white rounded-md hover:bg-[#4335d1] dark:hover:bg-purple-700 transition"
             >
-              Next
+              {t("next")}
             </button>
           ) : (
             <button
               onClick={submit}
               disabled={loading}
-              className="px-4 py-2 bg-[#5c52ff] text-white rounded-md hover:bg-[#4335d1] transition disabled:opacity-50"
+              className="px-4 py-2 bg-[#5c52ff] dark:bg-purple-600 text-white rounded-md hover:bg-[#4335d1] dark:hover:bg-purple-700 transition disabled:opacity-50"
             >
-              {loading ? "Submitting..." : "Submit"}
+              {loading ? t("submitting") : t("submit")}
             </button>
           )}
         </div>

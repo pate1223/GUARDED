@@ -1,45 +1,46 @@
 const db = require('../models/db');
 const admin = require('firebase-admin');
 
+// ==========================
 // Update user profile
+// ==========================
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.dbUser.id;
-    const { name, language } = req.body;
+    const { name } = req.body;
 
-    if (!name || !name.trim()) {
+    if (!name || name.trim() === '') {
       return res.status(400).json({
         success: false,
-        message: 'Name is required'
+        message: 'Name cannot be empty'
       });
     }
 
-    // Update database - only update name (user_id column)
-    // Note: We're not updating language or updated_at columns as they may not exist in all databases
+    // Update database (update user_id + updated_at)
     try {
       await db.query(`
         UPDATE users
-        SET user_id = ?
+        SET user_id = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `, [name.trim(), userId]);
     } catch (dbError) {
-      // If there's an error, it might be because user_id column doesn't exist
-      // Let's provide a more helpful error message
       if (dbError.message.includes('Unknown column')) {
-        throw new Error(`Database column error: ${dbError.message}. Please ensure the user_id column exists in the users table.`);
+        throw new Error(
+          `Database column error: ${dbError.message}. 
+           Ensure the 'user_id' column exists in the users table.`
+        );
       }
       throw dbError;
     }
 
-    // Also update Firebase display name if provided
-    if (name && req.user.uid) {
+    // Update Firebase displayName
+    if (req.user.uid) {
       try {
         await admin.auth().updateUser(req.user.uid, {
           displayName: name.trim()
         });
       } catch (firebaseError) {
         console.error('Firebase update error:', firebaseError);
-        // Continue even if Firebase update fails
       }
     }
 
@@ -48,6 +49,7 @@ exports.updateProfile = async (req, res) => {
       message: 'Profile updated successfully',
       user: { name: name.trim() }
     });
+
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({
@@ -58,21 +60,22 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// Request password reset
+
+// ==========================
+// Request Password Reset
+// ==========================
 exports.requestPasswordReset = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // Generate password reset link
     const resetLink = await admin.auth().generatePasswordResetLink(email);
 
-    // In production, send email here
-    // For now, return the link
     res.json({
       success: true,
       message: 'Password reset email sent',
-      resetLink: resetLink // Remove in production
+      resetLink // Remove in production
     });
+
   } catch (error) {
     console.error('Password reset error:', error);
     res.status(500).json({
@@ -83,30 +86,24 @@ exports.requestPasswordReset = async (req, res) => {
   }
 };
 
-// Delete user account
+
+// ==========================
+// Delete Account
+// ==========================
 exports.deleteAccount = async (req, res) => {
   try {
     const userId = req.user.dbUser.id;
     const firebaseUid = req.user.uid;
 
-    // Start transaction
     const connection = await db.getConnection();
     await connection.beginTransaction();
 
     try {
-      // Delete user progress
       await connection.query('DELETE FROM user_progress WHERE user_id = ?', [userId]);
-
-      // Delete video progress
       await connection.query('DELETE FROM video_progress WHERE user_id = ?', [userId]);
-
-      // Delete user badges
       await connection.query('DELETE FROM user_badges WHERE user_id = ?', [userId]);
-
-      // Delete user from database
       await connection.query('DELETE FROM users WHERE id = ?', [userId]);
 
-      // Delete from Firebase
       await admin.auth().deleteUser(firebaseUid);
 
       await connection.commit();
@@ -116,11 +113,13 @@ exports.deleteAccount = async (req, res) => {
         success: true,
         message: 'Account deleted successfully'
       });
+
     } catch (error) {
       await connection.rollback();
       connection.release();
       throw error;
     }
+
   } catch (error) {
     console.error('Delete account error:', error);
     res.status(500).json({
@@ -131,7 +130,10 @@ exports.deleteAccount = async (req, res) => {
   }
 };
 
-// Update user photo
+
+// ==========================
+// Update User Photo
+// ==========================
 exports.updatePhoto = async (req, res) => {
   try {
     const userId = req.user.dbUser.id;
@@ -143,7 +145,7 @@ exports.updatePhoto = async (req, res) => {
       WHERE id = ?
     `, [photoUrl, userId]);
 
-    // Also update Firebase photo URL
+    // Also update Firebase
     if (req.user.uid) {
       try {
         await admin.auth().updateUser(req.user.uid, {
@@ -157,8 +159,9 @@ exports.updatePhoto = async (req, res) => {
     res.json({
       success: true,
       message: 'Photo updated successfully',
-      photoUrl: photoUrl
+      photoUrl
     });
+
   } catch (error) {
     console.error('Update photo error:', error);
     res.status(500).json({

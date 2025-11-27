@@ -36,7 +36,7 @@ exports.getDashboardStats = async (req, res) => {
 
     // Latest feedback (last 2 entries)
     const [latestFeedback] = await db.query(`
-      SELECT f.id, f.rating, f.question2, f.question5, f.created_at, u.email
+      SELECT f.id, f.rating, f.comment, f.created_at, u.email
       FROM feedback f
       LEFT JOIN users u ON f.user_id = u.id
       ORDER BY f.created_at DESC
@@ -91,7 +91,7 @@ exports.getDashboardStats = async (req, res) => {
         latestFeedback: latestFeedback.map(f => ({
           id: f.id,
           name: f.email ? f.email.split('@')[0] : 'Anonymous',
-          text: f.question2 || f.question5 || 'No comment',
+          text: f.comment || 'No comment',
           rating: f.rating,
           created_at: f.created_at
         })),

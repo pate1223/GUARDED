@@ -1,361 +1,245 @@
 import axios from 'axios';
 
-// Create axios instance with base configuration
-// Use /api as base URL - in production NGINX routes /api to backend, in dev vite proxy handles it
+// ========================
+//  AXIOS INSTANCE
+// ========================
 const api = axios.create({
   baseURL: '/api',
   timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' }
 });
 
-// Request interceptor to add auth token
+// ========================
+//  INTERCEPTORS
+// ========================
 api.interceptors.request.use(
   (config) => {
-    // Add any auth token if available
     const token = localStorage.getItem('firebase_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
     console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
 
-// API methods
+// ========================
+//  API SERVICE
+// ========================
 export const apiService = {
-  // User registration
+
+  // ------------------------
+  // USER AUTH
+  // ------------------------
   registerUser: async (userData) => {
     try {
-      const response = await api.post('/users/register', userData);
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
+      const res = await api.post('/users/register', userData);
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
     }
   },
 
-  // Get user profile
   getUserProfile: async (token) => {
     try {
-      const response = await api.get('/users/profile', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      const res = await api.get('/users/profile', {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
     }
   },
 
-  // Verify user in database
   verifyUser: async (token) => {
     try {
-      const response = await api.get('/users/profile', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      const res = await api.get('/users/profile', {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      return {
-        success: true,
-        user: response.data.user
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
+      return { success: true, user: res.data.user };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
     }
   },
 
-  // Get Firebase config
   getFirebaseConfig: async () => {
     try {
-      const response = await api.get('/config');
-      return {
-        success: true,
-        config: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
+      const res = await api.get('/config');
+      return { success: true, config: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
     }
   },
 
-  // Health check (uses fetch directly since backend /health is at root, not /api)
+  // ------------------------
+  // HEALTH CHECK
+  // ------------------------
   healthCheck: async () => {
     try {
-      const response = await fetch('/health');
-      const data = await response.json();
-      return {
-        success: true,
-        data: data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.message
-      };
+      const res = await api.get('/health');
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
     }
   },
 
-  // Quiz methods
-  getQuizzes: async () => {
+  // ========================
+  //  QUIZ API (LANG-AWARE)
+  // ========================
+  getQuizzes: async (lang = 'EN') => {
     try {
-      const response = await api.get('/quizzes');
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
+      const res = await api.get('/quizzes', { params: { lang } });
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
     }
   },
 
-    // Get all users (Admin only)
+  getQuiz: async (quizId, lang = 'EN') => {
+    try {
+      const res = await api.get(`/quizzes/${quizId}`, { params: { lang } });
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
+    }
+  },
+
+  submitQuiz: async (quizId, answers, timeTaken, lang = 'EN') => {
+    try {
+      const res = await api.post(`/quizzes/${quizId}/submit`, {
+        answers,
+        timeTaken,
+        lang
+      });
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
+    }
+  },
+
+  getUserProgress: async (lang = 'EN') => {
+    try {
+      const res = await api.get('/quizzes/progress/user', {
+        params: { lang }
+      });
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
+    }
+  },
+
+  getUserAchievements: async (lang = 'EN') => {
+    try {
+      const res = await api.get('/quizzes/achievements/user', {
+        params: { lang }
+      });
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
+    }
+  },
+
+  getQuizHistory: async (quizId, lang = 'EN') => {
+    try {
+      const res = await api.get(`/quizzes/${quizId}/history`, {
+        params: { lang }
+      });
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
+    }
+  },
+
+  resetUserProgress: async (lang = 'EN') => {
+    try {
+      const res = await api.delete('/quizzes/progress/user', {
+        params: { lang }
+      });
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
+    }
+  },
+
+  getQuizStats: async (quizId, lang = 'EN') => {
+    try {
+      const res = await api.get(`/quizzes/${quizId}/stats`, {
+        params: { lang }
+      });
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
+    }
+  },
+
+  // ------------------------
+  // FEEDBACK
+  // ------------------------
+  submitFeedback: async (feedbackData) => {
+    try {
+      const res = await api.post('/feedback', feedbackData);
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
+    }
+  },
+
+  getAllFeedback: async () => {
+    try {
+      const res = await api.get('/feedback');
+      return { success: true, data: res.data.feedback || res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
+    }
+  },
+
+  // ------------------------
+  // ADMIN
+  // ------------------------
   getAllUsers: async () => {
     try {
-      const response = await api.get('/admin/users');
-
-      return {
-        success: true,
-        data: response.data.users || response.data
-      };
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
+      const res = await api.get('/admin/users');
+      return { success: true, data: res.data.users || res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
     }
   },
 
-  // Create a new user (admin)
-createUser: async (userData) => {
-  try {
-    const response = await api.post('/users/register', userData);
-    return { success: true, data: response.data };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.response?.data?.message || error.message
-    };
-  }
-},
-
-// Delete a user by ID (admin only)
-deleteUser: async (userId) => {
-  try {
-    const response = await api.delete(`/admin/users/${userId}`);
-    return { success: true, data: response.data };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.response?.data?.message || error.message
-    };
-  }
-},
-
-
-  // Feedback API methods
-submitFeedback: async (feedbackData) => {
-  try {
-    const response = await api.post('/feedback', feedbackData);
-    return { success: true, data: response.data };
-  } catch (error) {
-    console.error('Submit feedback error:', error);
-    return { success: false, error: error.response?.data?.message || error.message };
-  }
-},
-
-getAllFeedback: async () => {
-  try {
-    const response = await api.get('/feedback');
-    return { success: true, data: response.data.feedback || response.data };
-  } catch (error) {
-    console.error('Get feedback error:', error);
-    return { success: false, error: error.response?.data?.message || error.message };
-  }
-},
-
-
-
-  getQuiz: async (quizId) => {
+  deleteUser: async (userId) => {
     try {
-      const response = await api.get(`/quizzes/${quizId}`);
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
+      const res = await api.delete(`/admin/users/${userId}`);
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
     }
   },
 
-  submitQuiz: async (quizId, answers, timeTaken) => {
+  // ------------------------
+  // PROFILE
+  // ------------------------
+  updateProfile: async (name) => {
     try {
-      const response = await api.post(`/quizzes/${quizId}/submit`, {
-        answers,
-        timeTaken
-      });
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
+      const res = await api.put('/profile', { name });
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
     }
   },
 
-  getUserProgress: async () => {
+  updateProfilePhoto: async (photoURL) => {
     try {
-      const response = await api.get('/quizzes/progress/user');
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Get user achievements
-  getUserAchievements: async () => {
-    try {
-      const response = await api.get('/quizzes/achievements/user');
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Get quiz history for a specific quiz
-  getQuizHistory: async (quizId) => {
-    try {
-      const response = await api.get(`/quizzes/${quizId}/history`);
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Reset user's quiz progress
-  resetUserProgress: async () => {
-    try {
-      const response = await api.delete('/quizzes/progress/user');
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Get quiz statistics (Admin)
-  getQuizStats: async (quizId) => {
-    try {
-      const response = await api.get(`/quizzes/${quizId}/stats`);
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Get dashboard statistics (Admin)
-  getDashboardStats: async () => {
-    try {
-      const response = await api.get('/admin/dashboard/stats');
-      return {
-        success: true,
-        data: response.data.stats
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
-    }
-  },
-
-  // Update user profile
-  updateProfile: async (name, language = null) => {
-    try {
-      const response = await api.put('/profile', { name, language });
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || error.message
-      };
+      const res = await api.put('/profile/photo', { photoURL });
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || err.message };
     }
   }
 };
-
-
 
 export default api;
