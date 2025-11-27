@@ -4,6 +4,14 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
+console.log("ENV LOADED:", {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  pass: process.env.DB_PASSWORD,
+  db: process.env.DB_NAME
+});
+
+
 // Import database connection
 const db = require('./models/db');
 

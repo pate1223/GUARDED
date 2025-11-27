@@ -20,22 +20,28 @@ export default function QuizHistory() {
     }
   }, [isAuthenticated]);
 
-  const fetchProgress = async () => {
-    try {
-      setLoading(true);
-      const result = await apiService.getUserProgress();
-      if (result.success) {
-        setProgress(result.data.progress);
-      } else {
-        setError(result.error);
-      }
-    } catch (error) {
-      console.error('Error fetching progress:', error);
-      setError('Failed to fetch quiz progress');
-    } finally {
-      setLoading(false);
+const fetchProgress = async () => {
+  try {
+    setLoading(true);
+
+    const result = await apiService.getUserProgress();
+
+    if (result.success) {
+      setProgress(result?.data?.progress ?? []);  // SAFE
+    } else {
+      setError(result.error);
+      setProgress([]); // fallback
     }
-  };
+
+  } catch (error) {
+    console.error('Error fetching progress:', error);
+    setError('Failed to fetch quiz progress');
+    setProgress([]); // fallback on error
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const fetchQuizHistory = async (quizId) => {
     try {
