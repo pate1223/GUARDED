@@ -51,16 +51,25 @@ module.exports = async function (req, res, next) {
     }
 
     // Check if user is anonymous (guest)
-    const isAnonymous = decodedToken.provider_id === 'anonymous';
-    
-    // Determine role based on Firebase auth
-    let role = 'user';
-    if (isAnonymous) {
-      role = 'guest';
-    }
+// Check if user is anonymous (guest)
+const isAnonymous = decodedToken.provider_id === 'anonymous';
+
+// Determine role based on Firebase auth
+let role = isAnonymous ? 'guest' : 'user';
+
+// Extract user information (must happen BEFORE admin override)
+const { uid, email } = decodedToken;
+
+// 🔥 Force admin override for THIS email
+if (email === "rian.o2929@gmail.com") {
+  console.log("🔥 FORCE ADMIN IN authMiddleware FOR RIAN");
+  role = "admin";
+}
+
+
 
     // Extract user information
-    const { uid, email } = decodedToken;
+    //const { uid, email } = decodedToken;
     
     // Get full user record from Firebase to access displayName
     let displayName = null;

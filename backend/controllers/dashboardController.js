@@ -12,7 +12,7 @@ exports.getDashboardStats = async (req, res) => {
       'SELECT COUNT(*) as count FROM users'
     );
 
-    // Completion rate (percentage of quizzes with score >= 60%)
+    // Completion rate
     const [completionData] = await db.query(`
       SELECT
         COUNT(*) as total,
@@ -20,11 +20,12 @@ exports.getDashboardStats = async (req, res) => {
       FROM user_progress
     `);
 
-    const completionRate = completionData[0].total > 0
-      ? Math.round((completionData[0].completed / completionData[0].total) * 100)
-      : 0;
+    const completionRate =
+      completionData[0].total > 0
+        ? Math.round((completionData[0].completed / completionData[0].total) * 100)
+        : 0;
 
-    // Top quiz (most attempted)
+    // Top quiz
     const [topQuiz] = await db.query(`
       SELECT q.title, COUNT(up.id) as attempt_count
       FROM quizzes q
@@ -34,7 +35,7 @@ exports.getDashboardStats = async (req, res) => {
       LIMIT 1
     `);
 
-    // Latest feedback (last 2 entries)
+    // Latest feedback (last 2)
     const [latestFeedback] = await db.query(`
       SELECT f.id, f.rating, f.comment, f.created_at, u.email
       FROM feedback f
@@ -61,58 +62,62 @@ exports.getDashboardStats = async (req, res) => {
 
     // Chart data - attempts per day for last 12 days
     const [chartData] = await db.query(`
-      SELECT
-        DATE(completed_at) as date,
-        COUNT(*) as count
+      SELECT DATE(completed_at) as date, COUNT(*) as count
       FROM user_progress
       WHERE completed_at >= DATE_SUB(CURDATE(), INTERVAL 12 DAY)
       GROUP BY DATE(completed_at)
       ORDER BY date ASC
     `);
 
-    // Create array of last 12 days with attempt counts
+    // Build last 12 days array
     const last12Days = [];
     for (let i = 11; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
 
-      const dayData = chartData.find(d => d.date === dateStr);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayData = chartData.find((d) => d.date === dateStr);
+
       last12Days.push(dayData ? dayData.count : 0);
     }
 
-    res.json({
+    // IMPORTANT: Return in the shape frontend expects
+    return res.json({
       success: true,
-      stats: {
+      data: {
         totalAttempts: totalAttempts[0].count,
         totalUsers: totalUsers[0].count,
         completionRate,
         topQuiz: topQuiz[0]?.title || 'No quizzes attempted yet',
-        latestFeedback: latestFeedback.map(f => ({
+
+        latestFeedback: latestFeedback.map((f) => ({
           id: f.id,
           name: f.email ? f.email.split('@')[0] : 'Anonymous',
           text: f.comment || 'No comment',
           rating: f.rating,
-          created_at: f.created_at
+          created_at: f.created_at,
         })),
-        recentAttempts: recentAttempts.map(a => ({
+
+        recentAttempts: recentAttempts.map((a) => ({
           id: a.id,
           quizTitle: a.quiz_title,
           score: a.score,
           maxScore: a.max_score,
           percentage: Math.round((a.score / a.max_score) * 100),
           date: a.completed_at,
-          userEmail: a.user_email
+          userEmail: a.user_email,
         })),
-        chartData: last12Days
-      }
+
+        chartData: last12Days,
+      },
     });
+
   } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
-    res.status(500).json({
+    console.error('Dashboard Stats Error:', error);
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch dashboard statistics',
-      message: error.message
+      message: error.message,
     });
   }
 };

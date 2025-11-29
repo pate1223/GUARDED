@@ -150,6 +150,8 @@ app.use('/api/video', require('./routes/video'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/admin/manage', require('./routes/adminUsers'));
 app.use('/api/admin', require('./routes/adminQuestions'));
+app.use('/api/admin', require('./routes/adminRoutes'));
+
 
 // Root endpoint
 app.get('/', (req, res) => {
