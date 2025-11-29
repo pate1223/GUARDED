@@ -569,139 +569,158 @@ export default function Learn({ onBack, i18n, lang }) {
   );
   
   // 🎯 FINAL FIX: Ensures Full-height, single-scroll container
-  const renderFreeFlow = () => (
-    <div
-      // Use absolute inset-0 to fill the parent, and hide any overflow
-      className={`absolute inset-0 flex transition-all duration-500 ease-out transform ${
-        screen === "free"
-          ? "translate-x-0 opacity-100"
-          : "translate-x-full opacity-0 pointer-events-none"
-      } p-0 md:p-8`} 
-      // Set height explicitly to manage scroll containment
-      style={{ height: '100%' }}
-    >
-      <div 
-        // Flex container for side-by-side panels. Crucially, h-full to take up ALL available height.
-        className="flex w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden"
-      >
-        
-        {/* --- LEFT PANEL: Category Navigation (Internal scroll if needed) --- */}
-        <div className="w-full md:w-1/4 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 p-6 md:p-8 bg-gray-50 dark:bg-gray-900/50 flex flex-col">
-            
-            <div className="mb-8">
-                <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 flex items-center gap-2">
-                    <Zap className="w-6 h-6"/> {i18n(lang, "exploreCategories")}
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{i18n(lang, "chooseScamType")}</p>
-            </div>
+const renderFreeFlow = () => (
+  <div
+    className={`absolute inset-0 flex transition-all duration-500 ease-out transform ${
+      screen === "free"
+        ? "translate-x-0 opacity-100"
+        : "translate-x-full opacity-0 pointer-events-none"
+    }`}
+  >
+    <div className="flex w-full h-full bg-white dark:bg-gray-800 overflow-hidden">
 
-            {/* Category Buttons - Takes up remaining vertical space, scrolls internally if categories overflow */}
-            <div className="flex flex-col space-y-3 flex-grow overflow-y-auto pr-2"> 
-            {categories.map((cat, index) => (
-                <button
-                key={cat.id}
-                onClick={() => setActiveCategoryIndex(index)}
-                className={`text-left flex items-center p-4 rounded-xl font-semibold transition-all duration-200 ${
-                    index === activeCategoryIndex
-                    ? "bg-blue-500 dark:bg-purple-600 text-white shadow-md"
-                    : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
-                }`}
-                >
-                <span className={`text-2xl mr-3 ${index === activeCategoryIndex ? 'text-white' : 'text-blue-500 dark:text-purple-400'}`}>{cat.icon}</span>
-                <span className="truncate">{cat.title}</span>
-                </button>
-            ))}
-            </div>
+      {/* ============================
+          LEFT PANEL (Categories)
+      ============================= */}
+      <div className="
+        w-full md:w-1/4 
+        flex-shrink-0 
+        border-r border-gray-200 dark:border-gray-700 
+        p-6 md:p-8 
+        bg-gray-50 dark:bg-gray-900/50
+        flex flex-col 
+        overflow-y-auto
+      ">
 
-            {/* Back Button */}
+        <div className="mb-8">
+          <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 flex items-center gap-2">
+            <Zap className="w-6 h-6" /> {i18n(lang, "exploreCategories")}
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {i18n(lang, "chooseScamType")}
+          </p>
+        </div>
+
+        <div className="flex flex-col space-y-3 flex-grow">
+          {categories.map((cat, index) => (
             <button
-                onClick={() => setScreen("mode")}
-                className="mt-6 px-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition flex items-center justify-center"
+              key={cat.id}
+              onClick={() => setActiveCategoryIndex(index)}
+              className={`text-left flex items-center p-4 rounded-xl font-semibold transition-all duration-200 ${
+                index === activeCategoryIndex
+                  ? "bg-blue-500 dark:bg-purple-600 text-white shadow-md"
+                  : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+              }`}
             >
-                <ChevronLeft className="w-4 h-4 mr-1" /> {i18n(lang, "backToChoice")}
+              <span
+                className={`text-2xl mr-3 ${
+                  index === activeCategoryIndex
+                    ? "text-white"
+                    : "text-blue-500 dark:text-purple-400"
+                }`}
+              >
+                {cat.icon}
+              </span>
+              <span className="truncate">{cat.title}</span>
             </button>
+          ))}
         </div>
 
-        {/* --- RIGHT PANEL: Content Display (MAIN scrollable area) --- */}
-        <div className="w-full md:w-3/4 p-6 md:p-10 overflow-y-auto">
-            
-            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
-                {categories[activeCategoryIndex].title}
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
-                {categories[activeCategoryIndex].desc}
-            </p>
+        <button
+          onClick={() => setScreen("mode")}
+          className="mt-6 px-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition flex items-center justify-center"
+        >
+          <ChevronLeft className="w-4 h-4 mr-1" /> {i18n(lang, "backToChoice")}
+        </button>
+      </div>
 
-            {/* --- Resource Library Section --- */}
-            <section className="mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
-                    <BookOpen className="w-6 h-6 text-blue-500 dark:text-purple-400" /> {i18n(lang, "resourceLibrary")}
-                </h2>
-                <div className="grid sm:grid-cols-2 gap-6">
-                    {libraries.length > 0 ? (
-                        libraries.map((lib, index) => (
-                            <div
-                                key={index}
-                                className="bg-gray-50 dark:bg-gray-700 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-600 hover:shadow-md transition"
-                            >
-                                <h5 className="font-bold text-xl text-blue-600 dark:text-purple-400 mb-1">{lib.title}</h5>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{lib.desc}</p>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-gray-500 dark:text-gray-400 italic col-span-full">
-                            {i18n(lang, "noLibraries")}
-                        </p>
-                    )}
+      {/* ============================
+          RIGHT PANEL (Scrollable Content)
+      ============================= */}
+      <div className="w-full md:w-3/4 p-6 md:p-10 overflow-y-auto">
+        
+        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
+          {categories[activeCategoryIndex].title}
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
+          {categories[activeCategoryIndex].desc}
+        </p>
+
+        {/* ========== RESOURCE LIBRARY ========== */}
+        <section className="mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
+            <BookOpen className="w-6 h-6 text-blue-500 dark:text-purple-400" /> 
+            {i18n(lang, "resourceLibrary")}
+          </h2>
+
+          <div className="grid sm:grid-cols-2 gap-6">
+            {libraries.length > 0 ? (
+              libraries.map((lib, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-50 dark:bg-gray-700 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-600 hover:shadow-md transition"
+                >
+                  <h5 className="font-bold text-xl text-blue-600 dark:text-purple-400 mb-1">
+                    {lib.title}
+                  </h5>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{lib.desc}</p>
                 </div>
-            </section>
-            
-            {/* --- Video Courses Section --- */}
-            <section>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
-                    <Video className="w-6 h-6 text-blue-500 dark:text-purple-400" /> {i18n(lang, "videoCourses")}
-                </h2>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {courses.length > 0 ? (
-                        courses.map((course, index) => (
-                            <button
-                                key={index}
-                                onClick={() => {
-                                    setSelectedCourse(course);
-                                    setShowVideoModal(true);
-                                }}
-                                className="text-left bg-white dark:bg-gray-800 rounded-xl p-5 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-[1.02] transition transform duration-200 flex flex-col group"
-                            >
-                                <div className="relative mb-4 overflow-hidden rounded-lg aspect-video">
-                                    {/* Placeholder for video thumbnail - replace with actual image source */}
-                                    <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                                        <span className="text-gray-500">Thumbnail Placeholder</span>
-                                    </div> 
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition">
-                                        <Play className="w-10 h-10 text-white fill-white bg-blue-600/80 rounded-full p-2" />
-                                    </div>
-                                </div>
-                                <h5 className="font-extrabold text-xl text-gray-900 dark:text-gray-100 mb-1 leading-snug">
-                                    {course.title}
-                                </h5>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{course.desc}</p>
-                                <div className="mt-auto flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 font-medium pt-2 border-t border-gray-100 dark:border-gray-700">
-                                    <span className="bg-purple-50 dark:bg-purple-900 text-purple-600 dark:text-purple-300 px-2 py-0.5 rounded-full">{course.level}</span>
-                                    <span>⏱ {course.time}</span>
-                                </div>
-                            </button>
-                        ))
-                    ) : (
-                        <p className="text-gray-500 dark:text-gray-400 italic col-span-full">
-                            {i18n(lang, "noCourses")}
-                        </p>
-                    )}
-                </div>
-            </section>
-        </div>
+              ))
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 italic col-span-full">
+                {i18n(lang, "noLibraries")}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* ========== VIDEO COURSES ========== */}
+        <section>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
+            <Video className="w-6 h-6 text-blue-500 dark:text-purple-400" /> 
+            {i18n(lang, "videoCourses")}
+          </h2>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {courses.length > 0 ? (
+              courses.map((course, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setSelectedCourse(course);
+                    setShowVideoModal(true);
+                  }}
+                  className="text-left bg-white dark:bg-gray-800 rounded-xl p-5 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-[1.02] transition transform duration-200 flex flex-col group"
+                >
+                  <div className="relative mb-4 overflow-hidden rounded-lg aspect-video bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <Play className="w-10 h-10 text-white fill-white bg-blue-600/80 rounded-full p-2" />
+                  </div>
+                  <h5 className="font-extrabold text-xl text-gray-900 dark:text-gray-100 mb-1">
+                    {course.title}
+                  </h5>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                    {course.desc}
+                  </p>
+                  <div className="mt-auto flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 font-medium pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <span className="bg-purple-50 dark:bg-purple-900 text-purple-600 dark:text-purple-300 px-2 py-0.5 rounded-full">
+                      {course.level}
+                    </span>
+                    <span>⏱ {course.time}</span>
+                  </div>
+                </button>
+              ))
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 italic col-span-full">
+                {i18n(lang, "noCourses")}
+              </p>
+            )}
+          </div>
+        </section>
       </div>
     </div>
-  );
+  </div>
+);
+
 
 
   // --- Main Render ---
@@ -715,16 +734,14 @@ export default function Learn({ onBack, i18n, lang }) {
       {renderDirectedLearningOverlay()}
       
       {/* 🔹 Main Learn Flow (Hero / Mode / Free) */}
-      <section 
-        // 🎯 FIXED: Removed min-h-screen to let content take over height. Added overflow-hidden to contain scrolling.
-        className="min-h-screen flex items-center justify-center text-center px-0 py-0 bg-gradient-to-br from-white to-[#f5f3ff] dark:from-gray-900 dark:to-gray-800 transition-colors duration-300 overflow-hidden"
-      >
-        <div 
-          // 🎯 FIXED: Set height to take available viewport space (100vh - header height)
-          // Assuming the header/navigation takes about 60px of vertical space, we use a calculation.
-          className="relative w-full max-w-7xl h-full max-h-[100vh] overflow-hidden" 
-          style={{ height: 'calc(100vh - 60px)' }} // Adjust 60px based on actual header height
-        >
+<section 
+  className="h-screen w-screen bg-gradient-to-br from-white to-[#f5f3ff] 
+             dark:from-gray-900 dark:to-gray-800 transition-colors duration-300"
+>
+  <div 
+    className="relative h-full w-full overflow-hidden"
+>
+
           
           {/* HERO SCREEN */}
           {renderHero()}
