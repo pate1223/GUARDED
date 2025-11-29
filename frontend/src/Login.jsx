@@ -2,10 +2,16 @@ import React, { useState } from "react";
 import Logo from "./assets/logo.png";
 import Undraw from "./assets/undraw_surveillance_k6wl 1.png";
 import ForgotPassword from "./ForgotPassword";
-import { signInWithEmail, signInWithGoogle, signInWithFacebook } from "./services/firebase";
+
+import {
+  signInWithEmail,
+  signInWithGoogle,
+  signInWithFacebook
+} from "./services/firebase";
+
 import { apiService } from "./services/api";
 
-export default function Login({ onBack, onCloseParent, onGoToSignUp, lang, i18n }) {
+export default function Login({ onBack, onCloseParent, setView, lang, i18n }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -13,11 +19,21 @@ export default function Login({ onBack, onCloseParent, onGoToSignUp, lang, i18n 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Forgot Password modal
+  /* -------------------------------------------------------------------------- */
+  /*                       SHOW FORGOT PASSWORD SCREEN                          */
+  /* -------------------------------------------------------------------------- */
   if (showForgot) {
-    return <ForgotPassword onBack={() => setShowForgot(false)} onCloseParent={onCloseParent} />;
+    return (
+      <ForgotPassword
+        onBack={() => setShowForgot(false)}
+        onCloseParent={onCloseParent}
+      />
+    );
   }
 
+  /* -------------------------------------------------------------------------- */
+  /*                                EMAIL LOGIN                                 */
+  /* -------------------------------------------------------------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -25,39 +41,56 @@ export default function Login({ onBack, onCloseParent, onGoToSignUp, lang, i18n 
 
     try {
       const result = await signInWithEmail(email, password);
+
       if (result.success) {
         const token = await result.user.getIdToken();
         const verifyResult = await apiService.verifyUser(token);
 
         if (verifyResult.success) {
           localStorage.setItem("firebase_token", token);
-          window.location.href = "/dashboard";
+
+          // Navigate based on user role
+          if (verifyResult.user.role === "admin") {
+            setView("admin");
+          } else {
+            setView("home");
+          }
         } else {
           setError(i18n(lang, "userNotFoundDb"));
         }
       } else {
-        setError(result.error);
+        setError(result.error || i18n(lang, "loginFailed"));
       }
     } catch (err) {
+      console.error("Login error:", err);
       setError(i18n(lang, "loginFailed"));
     } finally {
       setLoading(false);
     }
   };
 
+  /* -------------------------------------------------------------------------- */
+  /*                              GOOGLE LOGIN                                   */
+  /* -------------------------------------------------------------------------- */
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError("");
 
     try {
       const result = await signInWithGoogle();
+
       if (result.success) {
         const token = await result.user.getIdToken();
         const verifyResult = await apiService.verifyUser(token);
 
         if (verifyResult.success) {
           localStorage.setItem("firebase_token", token);
-          window.location.href = "/dashboard";
+
+          if (verifyResult.user.role === "admin") {
+            setView("admin");
+          } else {
+            setView("home");
+          }
         } else {
           setError(i18n(lang, "userNotFoundRegister"));
         }
@@ -65,25 +98,35 @@ export default function Login({ onBack, onCloseParent, onGoToSignUp, lang, i18n 
         setError(result.error);
       }
     } catch (err) {
+      console.error("Google sign-in error:", err);
       setError(i18n(lang, "googleSignInFailed"));
     } finally {
       setLoading(false);
     }
   };
 
+  /* -------------------------------------------------------------------------- */
+  /*                             FACEBOOK LOGIN                                 */
+  /* -------------------------------------------------------------------------- */
   const handleFacebookSignIn = async () => {
     setLoading(true);
     setError("");
 
     try {
       const result = await signInWithFacebook();
+
       if (result.success) {
         const token = await result.user.getIdToken();
         const verifyResult = await apiService.verifyUser(token);
 
         if (verifyResult.success) {
           localStorage.setItem("firebase_token", token);
-          window.location.href = "/dashboard";
+
+          if (verifyResult.user.role === "admin") {
+            setView("admin");
+          } else {
+            setView("home");
+          }
         } else {
           setError(i18n(lang, "userNotFoundRegister"));
         }
@@ -91,15 +134,19 @@ export default function Login({ onBack, onCloseParent, onGoToSignUp, lang, i18n 
         setError(result.error);
       }
     } catch (err) {
+      console.error("Facebook error:", err);
       setError(i18n(lang, "facebookSignInFailed"));
     } finally {
       setLoading(false);
     }
   };
 
+  /* -------------------------------------------------------------------------- */
+  /*                                   RENDER                                   */
+  /* -------------------------------------------------------------------------- */
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-white">
-      <div className="w-full h-full min-h-screen bg-white flex flex-col md:flex-row overflow-hidden">
+      <div className="w-full h-full min-h-screen flex flex-col md:flex-row overflow-hidden">
 
         {/* LEFT SECTION */}
         <div className="w-full md:w-1/2 bg-[#e6e3ff] flex flex-col justify-center items-center relative p-6">
@@ -107,6 +154,7 @@ export default function Login({ onBack, onCloseParent, onGoToSignUp, lang, i18n 
             onClick={onBack}
             className="absolute top-6 left-6 w-12 h-12 bg-white rounded-full shadow hover:bg-purple-100 transition"
             aria-label="Back"
+            type="button"
           >
             <svg width="28" height="28" fill="none" stroke="#5c52ff" strokeWidth="3">
               <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
@@ -120,11 +168,10 @@ export default function Login({ onBack, onCloseParent, onGoToSignUp, lang, i18n 
               className="w-[320px] max-w-full mb-6"
               style={{ filter: "drop-shadow(0 12px 24px rgba(92,82,255,0.12))" }}
             />
-
             <div className="text-4xl font-handwritten text-[#44425a] text-center px-4">
               {i18n(lang, "everyClickMatters")}
               <br />
-              {i18n(lang, "learnClickSmart")}
+              {i18n(lang, "learnToClickSmart")}
             </div>
           </div>
         </div>
@@ -135,8 +182,12 @@ export default function Login({ onBack, onCloseParent, onGoToSignUp, lang, i18n 
             <div className="w-20 h-20 rounded-full border-4 border-[#bcb6ff] flex items-center justify-center mb-4">
               <img src={Logo} alt="GuardEd logo" className="w-12 h-12" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-800">{i18n(lang, "welcomeBack")}</h2>
-            <p className="text-gray-400 text-lg">{i18n(lang, "signInToContinue")}</p>
+            <h2 className="text-3xl font-bold text-gray-800">
+              {i18n(lang, "welcomeBack")}
+            </h2>
+            <p className="text-gray-400 text-lg">
+              {i18n(lang, "signInToContinue")}
+            </p>
           </div>
 
           {error && (
@@ -147,7 +198,6 @@ export default function Login({ onBack, onCloseParent, onGoToSignUp, lang, i18n 
 
           {/* FORM */}
           <form className="w-[80%] flex flex-col gap-4" onSubmit={handleSubmit}>
-
             {/* Email */}
             <div className="relative">
               <input
@@ -182,7 +232,11 @@ export default function Login({ onBack, onCloseParent, onGoToSignUp, lang, i18n 
 
             {/* Forgot password */}
             <div className="flex justify-end">
-              <button type="button" className="text-[#5c52ff]" onClick={() => setShowForgot(true)}>
+              <button
+                type="button"
+                className="text-[#5c52ff]"
+                onClick={() => setShowForgot(true)}
+              >
                 {i18n(lang, "forgotPassword")}
               </button>
             </div>
@@ -199,24 +253,36 @@ export default function Login({ onBack, onCloseParent, onGoToSignUp, lang, i18n 
 
           {/* SOCIAL LOGIN */}
           <div className="mt-8">
-            <p className="text-center text-gray-400 mb-4">{i18n(lang, "orContinueWith")}</p>
+            <p className="text-center text-gray-400 mb-4">
+              {i18n(lang, "orContinueWith")}
+            </p>
 
             <div className="flex gap-4 justify-center">
-              <button onClick={handleGoogleSignIn} className="w-12 h-12 bg-white border rounded-full shadow">
+              {/* Google */}
+              <button
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="w-12 h-12 bg-white border rounded-full shadow flex items-center justify-center"
+              >
                 G
               </button>
 
-              <button onClick={handleFacebookSignIn} className="w-12 h-12 bg-white border rounded-full shadow">
+              {/* Facebook */}
+              <button
+                onClick={handleFacebookSignIn}
+                disabled={loading}
+                className="w-12 h-12 bg-white border rounded-full shadow flex items-center justify-center"
+              >
                 f
               </button>
             </div>
           </div>
 
-          {/* SIGN UP LINK */}
+          {/* SIGN UP */}
           <div className="mt-6">
             <span className="text-gray-600">
               {i18n(lang, "dontHaveAccount")}{" "}
-              <button className="text-[#5c52ff]" onClick={onGoToSignUp}>
+              <button className="text-[#5c52ff]" onClick={() => setView("signup")}>
                 {i18n(lang, "signUp")}
               </button>
             </span>

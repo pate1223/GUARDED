@@ -5,13 +5,13 @@ import Login from "./Login";
 import CreateAccount from "./CreateAccount";
 import Undraw from "./assets/undraw_surveillance_k6wl 1.png";
 
-export default function SignIn({ onBack, lang, i18n }) {
+export default function SignIn({ onBack, setView, lang, i18n }) {
   const [showLogin, setShowLogin] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
 
   // when showLogin is true, render the full Login page
   if (showLogin) {
-    return <Login onBack={() => setShowLogin(false)} onCloseParent={onBack} lang={lang} i18n={i18n} />;
+    return <Login onBack={() => setShowLogin(false)} onCloseParent={onBack} setView={setView} lang={lang} i18n={i18n} />;
   }
 
   if (showCreate) {
@@ -20,6 +20,7 @@ export default function SignIn({ onBack, lang, i18n }) {
         onBack={() => setShowCreate(false)}
         onGoToLogin={() => { setShowCreate(false); setShowLogin(true); }}
         onCloseParent={onBack}
+        setView={setView}
         lang={lang}
         i18n={i18n}
       />

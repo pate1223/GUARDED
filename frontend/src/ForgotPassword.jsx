@@ -3,7 +3,7 @@ import Logo from "./assets/logo.png";
 import Undraw from "./assets/undraw_surveillance_k6wl 1.png";
 import { useLanguage } from "./contexts/LanguageContext";
 
-// Firebase production-safe import
+// Firebase (production safe)
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "./services/firebase";
 
@@ -15,6 +15,9 @@ export default function ForgotPassword({ onBack, onCloseParent }) {
   const [emailSent, setEmailSent] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  /* -------------------------------------------------------------------------- */
+  /*                             HANDLE RESET SUBMIT                             */
+  /* -------------------------------------------------------------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -48,6 +51,9 @@ export default function ForgotPassword({ onBack, onCloseParent }) {
     }
   };
 
+  /* -------------------------------------------------------------------------- */
+  /*                                   RETURN                                   */
+  /* -------------------------------------------------------------------------- */
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900 transition-colors">
       <div className="w-[1100px] h-[650px] bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-purple-500/30 flex overflow-hidden">
@@ -86,7 +92,7 @@ export default function ForgotPassword({ onBack, onCloseParent }) {
         {/* RIGHT SIDE */}
         <div className="w-1/2 flex flex-col items-center justify-center bg-white dark:bg-gray-800 px-10 transition-colors">
 
-          {/* Logo + Title */}
+          {/* Logo & Title */}
           <div className="flex flex-col items-center mb-6">
             <div className="w-20 h-20 rounded-full border-4 border-[#bcb6ff] dark:border-purple-600 flex items-center justify-center mb-4">
               <img src={Logo} alt="GuardEd logo" className="w-12 h-12" />
@@ -144,7 +150,7 @@ export default function ForgotPassword({ onBack, onCloseParent }) {
             </button>
           </form>
 
-          {/* Link to Login */}
+          {/* Link back to Sign In */}
           <div className="mt-6 text-gray-500 dark:text-gray-400">
             {t("rememberedPassword")}{" "}
             <button type="button" className="text-[#5c52ff] dark:text-purple-400 font-semibold hover:underline" onClick={onCloseParent}>

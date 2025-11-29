@@ -19,6 +19,8 @@ const EmailScams = lazy(() => import('./EmailScams'));
 const Dashboard = lazy(() => import('./Dashboard'));
 const AdminDashboard = lazy(() => import('./AdminDashboard'));
 const Achievements = lazy(() => import('./components/Achievements'));
+import { LanguageProvider } from "./contexts/LanguageContext";
+
 
 // Translations for EN and FR
 const translations = {
@@ -1482,9 +1484,11 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <ToastProvider>
-        <AppContent />
-      </ToastProvider>
+      <LanguageProvider>
+        <ToastProvider>
+          <AppContent />
+        </ToastProvider>
+      </LanguageProvider>
     </AuthProvider>
   );
 }

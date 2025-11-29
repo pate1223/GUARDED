@@ -1,13 +1,21 @@
+/*******************************************************
+ *  QuizPage.jsx — FINAL MERGED PRODUCTION VERSION
+ *  - Full-feature Quiz Cards (new, completed, retake)
+ *  - Results viewer integrated (QuizResults)
+ *  - Supports all API shapes (v1, v2, v3)
+ *  - Dark mode + i18n
+ *  - Robust error handling
+ *******************************************************/
+
 import React, { useState, useEffect } from "react";
 import Quiz from "./components/Quiz";
 import QuizResults from "./components/QuizResults";
 import { apiService } from "./services/api";
 import { useAuth } from "./contexts/AuthContext";
 
-/* -------------------------------------------------------------------------- */
-/*                               QUIZ CARD UI                                 */
-/* -------------------------------------------------------------------------- */
-
+/* --------------------------------------------------------
+ * QUIZ CARD (Unified Full Feature Version)
+ * ------------------------------------------------------ */
 function QuizCard({
   quiz,
   onSelect,
@@ -21,6 +29,7 @@ function QuizCard({
 }) {
   return (
     <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-xl w-72 min-h-[370px] flex flex-col items-center pt-8 pb-6 px-6 transition-all duration-300 hover:shadow-2xl">
+
       {/* STATUS BADGE */}
       <div
         className={`absolute left-6 top-6 px-4 py-1 rounded-tl-2xl rounded-br-2xl text-xs font-bold ${
@@ -38,7 +47,7 @@ function QuizCard({
           : i18n(lang, "newBadge")}
       </div>
 
-      {/* ICON */}
+      {/* QUIZ ICON */}
       <div
         className={`w-32 h-32 rounded-2xl flex items-center justify-center mb-6 mt-6 shadow-lg ${
           isRetaking
@@ -69,7 +78,7 @@ function QuizCard({
         </svg>
       </div>
 
-      {/* TITLE / DESCRIPTION */}
+      {/* QUIZ TITLE / DESC */}
       <div className="text-center mb-2">
         <div
           className={`text-base font-bold ${
@@ -100,7 +109,7 @@ function QuizCard({
         </div>
       </div>
 
-      {/* PROGRESS (completed quizzes) */}
+      {/* COMPLETED QUIZ PROGRESS DETAILS */}
       {isCompleted && progress && (
         <div className="w-full mt-4 text-sm text-gray-700 dark:text-gray-300 space-y-1">
           <div className="flex justify-between">
@@ -126,7 +135,7 @@ function QuizCard({
         </div>
       )}
 
-      {/* START / RETAKE BUTTON */}
+      {/* MAIN BUTTON (start or retake) */}
       <button
         onClick={() => onSelect(quiz)}
         className={`mt-6 w-full py-3 rounded-xl font-bold text-lg shadow text-white ${
@@ -138,7 +147,7 @@ function QuizCard({
         {isRetaking ? i18n(lang, "startRetake") : i18n(lang, "startQuiz")}
       </button>
 
-      {/* RESULT + RETAKE ACTIONS (only for completed & not currently retaking) */}
+      {/* RESULTS + RETAKE BUTTONS */}
       {isCompleted && !isRetaking && (
         <div className="w-full mt-4 space-y-3">
           {onViewResults && (
@@ -170,10 +179,9 @@ function QuizCard({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                MAIN PAGE                                   */
-/* -------------------------------------------------------------------------- */
-
+/* --------------------------------------------------------
+ * MAIN PAGE LOGIC
+ * ------------------------------------------------------ */
 export default function QuizPage({ lang, i18n }) {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [quizResults, setQuizResults] = useState(null);
@@ -188,8 +196,7 @@ export default function QuizPage({ lang, i18n }) {
 
   const { isAuthenticated } = useAuth();
 
-  /* ---------------------------- LOAD QUIZZES ---------------------------- */
-
+  /* -------------------- FETCH QUIZZES -------------------- */
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -201,64 +208,63 @@ export default function QuizPage({ lang, i18n }) {
       }
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, lang]);
 
+  /* Retrieves quiz list (supports multiple response formats) */
   const fetchQuizzes = async () => {
     try {
       const result = await apiService.getQuizzes(lang);
-      if (result?.success) {
-        // Data shape A: { success: true, data: { quizzes: [...] } }
-        const list = result.data?.quizzes || [];
-        setQuizzes(Array.isArray(list) ? list : []);
-      } else {
-        setQuizzes([]);
-      }
+
+      const list =
+        result?.data?.quizzes ||
+        result?.data?.data ||
+        result?.data ||
+        [];
+
+      setQuizzes(Array.isArray(list) ? list : []);
     } catch (e) {
       console.error("Failed to fetch quizzes:", e);
       setQuizzes([]);
     }
   };
 
+  /* Retrieves user's progress */
   const fetchUserProgress = async () => {
     try {
       const result = await apiService.getUserProgress();
-      // Be flexible with the shape here:
+
       const progress =
         result?.data?.data?.currentProgress ||
         result?.data?.progress ||
         result?.data ||
         [];
+
       setUserProgress(Array.isArray(progress) ? progress : []);
     } catch (e) {
-      console.error("Failed to fetch user progress:", e);
+      console.error("Failed to fetch progress:", e);
     } finally {
       setLoading(false);
     }
   };
 
-  /* ---------------------------- LOAD QUIZ QUESTIONS ---------------------------- */
-
+  /* -------------------- WHEN SELECTING A QUIZ -------------------- */
   const handleQuizSelect = async (quiz) => {
     try {
       setLoading(true);
       const result = await apiService.getQuiz(quiz.id, lang);
-      if (result?.success) {
-        setSelectedQuiz(result.data.quiz);
-        setRetakingQuizId(null); // clear retake flag when actually starting
-      } else {
-        alert(result?.error || "Failed to load quiz.");
-      }
+
+      if (!result?.success) return alert(result.error || "Failed to load quiz.");
+
+      setSelectedQuiz(result.data.quiz);
+      setRetakingQuizId(null);
     } catch (e) {
-      console.error("Failed to load quiz:", e);
       alert("Failed to load quiz.");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ---------------------------- QUIZ COMPLETION ---------------------------- */
-
+  /* -------------------- COMPLETE QUIZ -------------------- */
   const handleQuizComplete = async () => {
     setSelectedQuiz(null);
     setRetakingQuizId(null);
@@ -268,79 +274,69 @@ export default function QuizPage({ lang, i18n }) {
     }
   };
 
-  /* ---------------------------- RESULTS VIEWER ---------------------------- */
-
+  /* -------------------- VIEW RESULTS -------------------- */
   const handleViewResults = async (quizId) => {
     try {
       setLoading(true);
 
       const history = await apiService.getQuizHistory(quizId);
-      if (!history?.success) {
-        alert(history?.error || "Failed to load results.");
-        return;
-      }
+      if (!history?.success)
+        return alert(history.error || "Failed to load results.");
 
       const attempts =
         history.data?.data || history.data?.history || history.data || [];
-      if (!Array.isArray(attempts) || attempts.length === 0) {
-        alert("No results found.");
-        return;
-      }
 
-      const latestAttempt = attempts[0];
+      if (!Array.isArray(attempts) || attempts.length === 0)
+        return alert("No results found.");
+
+      const latest = attempts[0]; // show most recent
 
       const quizData = await apiService.getQuiz(quizId, lang);
-      if (!quizData?.success) {
-        alert(quizData?.error || "Failed to load quiz for results.");
-        return;
-      }
+      if (!quizData?.success)
+        return alert("Failed to load quiz for results.");
 
       setQuizResults({
         quiz: quizData.data.quiz,
-        results: latestAttempt,
+        results: latest,
       });
     } catch (e) {
-      console.error("Failed to load results:", e);
       alert("Failed to load results.");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ---------------------------- RETAKE FLOW ---------------------------- */
-
+  /* -------------------- RETAKE FLOW -------------------- */
   const handleRetake = (quizId) => {
     setRetakingQuizId(quizId);
-    // User then clicks the main button ("Start Retake") to actually start.
   };
 
-  /* ---------------------------- FILTERING HELPERS ---------------------------- */
-
-  const filterQuizzes = (quizList) => {
-    return quizList.filter((quiz) => {
+  /* -------------------- FILTERING -------------------- */
+  const filterQuizzes = (list) => {
+    return list.filter((q) => {
       const search = searchTerm.toLowerCase();
       const matchesSearch =
-        quiz.title?.toLowerCase().includes(search) ||
-        quiz.description?.toLowerCase().includes(search) ||
-        quiz.category?.toLowerCase().includes(search);
+        q.title?.toLowerCase().includes(search) ||
+        q.description?.toLowerCase().includes(search) ||
+        q.category?.toLowerCase().includes(search);
 
       const matchesCategory =
-        categoryFilter === "all" || quiz.category === categoryFilter;
+        categoryFilter === "all" || q.category === categoryFilter;
 
       return matchesSearch && matchesCategory;
     });
   };
 
-  /* ---------------------------- LOADING / MODES ---------------------------- */
-
+  /* -------------------- LOADING SCREEN -------------------- */
   if (loading) {
     return (
-      <div className="w-full min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <div className="animate-spin h-12 w-12 rounded-full border-b-2 border-[#5c52ff] dark:border-purple-400" />
+      <div className="w-full min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="animate-spin h-12 w-12 border-b-2 border-[#5c52ff] dark:border-purple-400 rounded-full"></div>
       </div>
     );
   }
 
+  /* -------------------- RESULTS MODE -------------------- */
   if (quizResults) {
     return (
       <QuizResults
@@ -353,6 +349,7 @@ export default function QuizPage({ lang, i18n }) {
     );
   }
 
+  /* -------------------- QUIZ ACTIVE MODE -------------------- */
   if (selectedQuiz) {
     return (
       <Quiz
@@ -365,33 +362,32 @@ export default function QuizPage({ lang, i18n }) {
     );
   }
 
-  /* ---------------------------- DERIVED LISTS ---------------------------- */
-
+  /* -------------------- BUILD FINAL LISTS -------------------- */
   const completedIds = userProgress.map((p) => p.quiz_id);
 
-  const completedQuizzesRaw = quizzes.filter((q) => completedIds.includes(q.id));
-  const newQuizzesRaw = quizzes.filter((q) => !completedIds.includes(q.id));
-
-  const completedQuizzes = filterQuizzes(
-    completedQuizzesRaw.map((q) => ({
+  const completedList = quizzes
+    .filter((q) => completedIds.includes(q.id))
+    .map((q) => ({
       ...q,
-      progress: userProgress.find((p) => p.quiz_id === q.id) || null,
-    }))
-  );
+      progress: userProgress.find((p) => p.quiz_id === q.id),
+    }));
 
-  const newQuizzes = filterQuizzes(newQuizzesRaw);
+  const newList = quizzes.filter((q) => !completedIds.includes(q.id));
 
   const categories = [
     "all",
     ...new Set(quizzes.map((q) => q.category).filter(Boolean)),
   ];
 
-  /* ---------------------------- RENDER PAGE ---------------------------- */
+  const filteredNew = filterQuizzes(newList);
+  const filteredCompleted = filterQuizzes(completedList);
 
+  /* -------------------- MAIN PAGE -------------------- */
   return (
-    <div className="w-full min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-      {/* Page header */}
-      <div className="w-[90%] h-24 bg-[#5c52ff] dark:bg-purple-600 rounded-full flex items-center justify-center mb-[-40px] z-10 mt-10 shadow-lg transition-colors duration-300">
+    <div className="w-full min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900">
+
+      {/* Header */}
+      <div className="w-[90%] h-24 bg-[#5c52ff] dark:bg-purple-600 rounded-full flex items-center justify-center mb-[-40px] z-10 mt-10 shadow-lg">
         <span className="text-white text-4xl font-bold">
           {i18n(lang, "quizzes")}
         </span>
@@ -399,74 +395,66 @@ export default function QuizPage({ lang, i18n }) {
 
       {/* Search + Filters */}
       <div className="w-[90%] mt-32 mb-8 flex flex-col md:flex-row gap-4 items-center justify-center">
-        {/* Search Input */}
-        <div className="w-full md:w-96">
-          <input
-            type="text"
-            placeholder={i18n(lang, "searchQuizzes")}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-6 py-3 rounded-full border-2 border-purple-200 dark:border-gray-700 focus:border-[#5c52ff] dark:focus:border-purple-500 focus:outline-none transition-colors duration-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 shadow-md"
-          />
-        </div>
+        <input
+          type="text"
+          placeholder={i18n(lang, "searchQuizzes")}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full md:w-96 px-6 py-3 rounded-full border-2 border-purple-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-md focus:border-[#5c52ff] dark:focus:border-purple-500 transition"
+        />
 
-        {/* Category Filter */}
-        <div className="w-full md:w-64">
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full px-6 py-3 rounded-full border-2 border-purple-200 dark:border-gray-700 focus:border-[#5c52ff] dark:focus:border-purple-500 focus:outline-none transition-colors duration-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-md appearance-none cursor-pointer"
-          >
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat === "all"
-                  ? i18n(lang, "allCategories")
-                  : cat.charAt(0).toUpperCase() +
-                    cat.slice(1).replace("_", " ")}
-              </option>
-            ))}
-          </select>
-        </div>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="w-full md:w-64 px-6 py-3 rounded-full border-2 border-purple-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-md focus:border-[#5c52ff] dark:focus:border-purple-500 transition"
+        >
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat === "all"
+                ? i18n(lang, "allCategories")
+                : cat.charAt(0).toUpperCase() + cat.slice(1).replace("_", " ")}
+            </option>
+          ))}
+        </select>
 
-        {/* Clear Filters */}
         {(searchTerm || categoryFilter !== "all") && (
           <button
             onClick={() => {
               setSearchTerm("");
               setCategoryFilter("all");
             }}
-            className="px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300 font-medium text-gray-700 dark:text-gray-300 shadow-md"
+            className="px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 shadow-md"
           >
             {i18n(lang, "clearFilters")}
           </button>
         )}
       </div>
 
-      {/* New Quizzes */}
+      {/* NEW QUIZZES */}
       <section className="w-full mt-8 px-8">
-        <h2 className="text-2xl font-bold text-[#5c52ff] dark:text-purple-400 mb-8 text-center transition-colors duration-300">
+        <h2 className="text-2xl font-bold text-[#5c52ff] dark:text-purple-400 mb-8 text-center">
           {i18n(lang, "browseQuizzes")}
         </h2>
 
-        {newQuizzes.length > 0 ? (
+        {filteredNew.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 justify-items-center">
-            {newQuizzes.map((quiz) => (
+            {filteredNew.map((quiz) => (
               <QuizCard
                 key={quiz.id}
                 quiz={quiz}
+                onSelect={handleQuizSelect}
+                onViewResults={null}
+                onRetake={null}
+                isCompleted={false}
+                isRetaking={false}
+                progress={null}
                 lang={lang}
                 i18n={i18n}
-                isCompleted={false}
-                progress={null}
-                isRetaking={false}
-                onSelect={handleQuizSelect}
-                onRetake={null}
-                onViewResults={null}
               />
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-500 dark:text-gray-400 italic transition-colors duration-300">
+          <p className="text-center text-gray-500 dark:text-gray-400 italic">
             {searchTerm || categoryFilter !== "all"
               ? i18n(lang, "noQuizzesMatch")
               : i18n(lang, "noNewQuizzes")}
@@ -474,32 +462,32 @@ export default function QuizPage({ lang, i18n }) {
         )}
       </section>
 
-      {/* Completed Quizzes */}
+      {/* COMPLETED QUIZZES */}
       {isAuthenticated && (
         <section className="w-full mt-20 px-8 mb-24">
-          <h2 className="text-2xl font-bold text-gray-600 dark:text-gray-300 mb-8 text-center transition-colors duration-300">
+          <h2 className="text-2xl font-bold text-gray-600 dark:text-gray-300 mb-8 text-center">
             {i18n(lang, "completedQuizzes")}
           </h2>
 
-          {completedQuizzes.length > 0 ? (
+          {filteredCompleted.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 justify-items-center">
-              {completedQuizzes.map((quiz) => (
+              {filteredCompleted.map((quiz) => (
                 <QuizCard
                   key={quiz.id}
                   quiz={quiz}
+                  onSelect={handleQuizSelect}
+                  onViewResults={handleViewResults}
+                  onRetake={handleRetake}
+                  isCompleted={true}
+                  isRetaking={retakingQuizId === quiz.id}
+                  progress={quiz.progress}
                   lang={lang}
                   i18n={i18n}
-                  isCompleted={true}
-                  progress={quiz.progress}
-                  isRetaking={retakingQuizId === quiz.id}
-                  onSelect={handleQuizSelect}
-                  onRetake={handleRetake}
-                  onViewResults={handleViewResults}
                 />
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-400 dark:text-gray-500 italic transition-colors duration-300">
+            <p className="text-center text-gray-400 dark:text-gray-500 italic">
               {searchTerm || categoryFilter !== "all"
                 ? i18n(lang, "noCompletedMatch")
                 : i18n(lang, "noCompletedQuizzes")}

@@ -52,20 +52,20 @@ export default function FeedbackList() {
 
   if (loading)
     return (
-      <div className="bg-white rounded-xl p-6 shadow text-center">
-        <div className="text-gray-500">Loading feedback...</div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow text-center">
+        <div className="text-gray-500 dark:text-gray-400">Loading feedback...</div>
       </div>
     );
 
   if (error)
     return (
-      <div className="bg-white rounded-xl p-6 shadow text-center">
-        <div className="text-red-500">⚠️ {error}</div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow text-center">
+        <div className="text-red-500 dark:text-red-400">⚠️ {error}</div>
       </div>
     );
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow min-h-[540px]">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow min-h-[540px]">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3 w-full max-w-[640px]">
@@ -73,15 +73,15 @@ export default function FeedbackList() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search feedback..."
-            className="w-full px-4 py-2 rounded-lg border border-[#e9e6ff] focus:outline-none focus:ring-1 focus:ring-[#5c52ff]"
+            className="w-full px-4 py-2 rounded-lg border border-[#e9e6ff] dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#5c52ff] dark:placeholder-gray-400"
           />
-          <button className="p-2 border border-[#e9e6ff] rounded-lg text-[#5c52ff]">🔎</button>
+          <button className="p-2 border border-[#e9e6ff] dark:border-gray-600 rounded-lg text-[#5c52ff] dark:text-[#7c72ff]">🔎</button>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2 rounded-lg border border-[#e9e6ff] text-[#5c52ff]">
+          <button className="px-4 py-2 rounded-lg border border-[#e9e6ff] dark:border-gray-600 text-[#5c52ff] dark:text-[#7c72ff]">
             Filter
           </button>
-          <button className="px-4 py-2 bg-[#5c52ff] text-white rounded-lg">
+          <button className="px-4 py-2 bg-[#5c52ff] dark:bg-[#7c72ff] text-white rounded-lg">
             Export
           </button>
         </div>
@@ -91,7 +91,7 @@ export default function FeedbackList() {
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="text-sm text-gray-500 border-b">
+            <tr className="text-sm text-gray-500 dark:text-gray-400 border-b dark:border-gray-700">
               <th className="py-3 px-3 w-10">#</th>
               <th className="py-3 px-3 w-36">USER</th>
               <th className="py-3 px-3 w-32 text-center">RATING</th>
@@ -105,25 +105,25 @@ export default function FeedbackList() {
             {rows.map((r, idx) => (
               <tr
                 key={r.id}
-                className="border-b last:border-b-0 hover:bg-[#faf8ff] transition"
+                className="border-b dark:border-gray-700 last:border-b-0 hover:bg-[#faf8ff] dark:hover:bg-gray-700 transition"
               >
-                <td className="py-4 px-3 text-sm text-gray-600">{idx + 1}</td>
-                <td className="py-4 px-3 text-sm text-[#2b2360] break-words">
+                <td className="py-4 px-3 text-sm text-gray-600 dark:text-gray-300">{idx + 1}</td>
+                <td className="py-4 px-3 text-sm text-[#2b2360] dark:text-[#a5b4fc] break-words">
                   {r.user_name || r.name || "Anonymous"}
                 </td>
                 <td className="py-4 px-3 text-center">
                   <StarRow n={r.rating || r.rating_value || 0} />
                 </td>
-                <td className="py-4 px-3 text-sm text-gray-700 break-words whitespace-pre-line">
+                <td className="py-4 px-3 text-sm text-gray-700 dark:text-gray-200 break-words whitespace-pre-line">
                   {r.question2 || "—"}
                 </td>
-                <td className="py-4 px-3 text-sm text-gray-700 break-words whitespace-pre-line">
+                <td className="py-4 px-3 text-sm text-gray-700 dark:text-gray-200 break-words whitespace-pre-line">
                   {r.question3 || "—"}
                 </td>
-                <td className="py-4 px-3 text-sm text-gray-700 break-words whitespace-pre-line">
+                <td className="py-4 px-3 text-sm text-gray-700 dark:text-gray-200 break-words whitespace-pre-line">
                   {r.question5 || "—"}
                 </td>
-                <td className="py-4 px-3 text-sm text-gray-600">
+                <td className="py-4 px-3 text-sm text-gray-600 dark:text-gray-300">
                   {new Date(r.created_at || r.createdAt).toLocaleDateString()}
                 </td>
               </tr>
@@ -131,7 +131,7 @@ export default function FeedbackList() {
 
             {rows.length === 0 && (
               <tr>
-                <td colSpan="7" className="py-8 text-center text-gray-400">
+                <td colSpan="7" className="py-8 text-center text-gray-400 dark:text-gray-500">
                   No feedback found
                 </td>
               </tr>
